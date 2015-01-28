@@ -1,0 +1,20 @@
+GIT
+  remote: https://github.com/jnunemaker/httparty.git
+  revision: 655ef5ff9983442fb7d3e4bfea874f2f23859af5
+  ref: 655ef5ff9983442fb7d3e4bfea874f2f23859af5
+  specs:
+    httparty (0.13.3)
+      json (~> 1.8)
+      multi_xml (>= 0.5.2)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    json (1.8.2)
+    multi_xml (0.5.5)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  httparty (~> 0.13.3)!

@@ -1,3 +1,14 @@
+* Provide a --lock command that also creates the lockfile
+
+* Submit a PR to bundler to find git and svn sources on $GEM_PATH.
+* In bundlerEnv, copy paths to a new "paths" output. Perhaps use subdirectories
+  named after the gem itself. Will need to convert the sources derivation to
+  program that generates the actual sources.rb.
+
+* Expose git #branch and #tag.
+* Given a branch or a tag, resolve the commit hash, and put that
+  in the manifest and in the cache.
+
 * Make sure .bundle/config isn't modified.
 * Use extconf.rb to make patching paths easier.
 * Bundix cache needs to take into account the flags used to fetch the git repo

@@ -1,0 +1,2 @@
+source "https://rubygems.org"
+gem 'hub', '~> 1.12.4'

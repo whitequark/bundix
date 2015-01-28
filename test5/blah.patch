@@ -1,0 +1,18 @@
+diff --git a/bin/hub b/bin/hub
+index c6f13d7..8ffaeff 100755
+--- a/bin/hub
++++ b/bin/hub
+@@ -3,6 +3,12 @@
+ # hub(1)
+ # alias git=hub
+ 
++puts "TEST TEST TEST"
++puts "TEST TEST TEST"
++puts "TEST TEST TEST"
++puts "TEST TEST TEST"
++puts "TEST TEST TEST"
++
+ Encoding.default_external = 'UTF-8' if defined?(Encoding)
+ 
+ require 'hub'
+

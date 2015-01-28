@@ -1,5 +1,12 @@
 require 'bundix'
 
+class Bundler::Source::Git
+  def allow_git_ops?
+    # was: @allow_remote || @allow_cached
+    true
+  end
+end
+
 class Bundix::Prefetcher
   require 'bundix/prefetcher/cache'
   require 'bundix/prefetcher/wrapper'

@@ -1,0 +1,4 @@
+source "https://rubygems.org"
+gem 'httparty', '~> 0.13.3',
+  git: "https://github.com/jnunemaker/httparty.git",
+  ref: "655ef5ff9983442fb7d3e4bfea874f2f23859af5"

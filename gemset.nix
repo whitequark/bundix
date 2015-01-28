@@ -1,9 +1,10 @@
 {
   "bundix" = {
     version = "0.1.0";
-    src = {
+    source = {
       type = "path";
       path = ./.;
+      pathString = ".";
     };
     dependencies = [
       "bundler"
@@ -12,7 +13,7 @@
   };
   "bundler" = {
     version = "1.7.9";
-    src = {
+    source = {
       type = "git";
       url = "https://github.com/cstrahan/bundler.git";
       rev = "b233205ec4b474e97c8dc40be9c53a41a70df0e3";
@@ -22,7 +23,7 @@
   };
   "thor" = {
     version = "0.19.1";
-    src = {
+    source = {
       type = "gem";
       sha256 = "08p5gx18yrbnwc6xc0mxvsfaxzgy2y9i78xq7ds0qmdm67q39y4z";
     };

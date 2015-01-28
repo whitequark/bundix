@@ -1,0 +1,15 @@
+#!/bin/sh
+
+#$(NIX_PATH=nixpkgs=$HOME/src/nixpkgs nix-build)/bin/bundix --gemfile Gemfile
+
+bundix=$(NIX_PATH=nixpkgs=$HOME/src/nixpkgs nix-build)/bin/bundix
+cd ..
+#$bundix --lockfile bundix/Gemfile.lock
+#$bundix --gemfile bundix/Gemfile
+
+$bundix --gemfile bundix/Gemfile #--lockfile bundix/Gemfile.lock
+
+#cd bundix
+#$bundix --gemfile Gemfile #--lockfile Gemfile.lock
+
+#$(NIX_PATH=nixpkgs=$HOME/src/nixpkgs nix-build)/bin/bundix --gemfile tmp/Gemfile  --lockfile tmp/Gemfile.lock --target tmp/gemset.nix

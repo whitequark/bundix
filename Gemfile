@@ -1,7 +1,15 @@
 source 'https://rubygems.org'
 
 # We need bundler 1.8, which hasn't been released yet.
-gemspec
+if defined? nix_path
+  #gemspec, :path => nix_path(".")
+  puts "================================"
+  puts nix_path(".")
+  puts "================================"
+  gemspec :path => nix_path(".")
+else
+  gemspec
+end
 
 #gem 'bundler',
 #  :git => 'https://github.com/bundler/bundler.git',

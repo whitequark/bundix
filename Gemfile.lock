@@ -1,7 +1,7 @@
 GIT
-  remote: https://github.com/bundler/bundler.git
-  revision: a2343c9eabf5403d8ffcbca4dea33d18a60fc157
-  ref: a2343c9eabf5403d8ffcbca4dea33d18a60fc157
+  remote: https://github.com/cstrahan/bundler.git
+  revision: b233205ec4b474e97c8dc40be9c53a41a70df0e3
+  ref: b233205ec4b474e97c8dc40be9c53a41a70df0e3
   specs:
 
 PATH
@@ -22,4 +22,3 @@ PLATFORMS
 DEPENDENCIES
   bundix!
   bundler!
-  thor

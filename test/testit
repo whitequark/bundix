@@ -1,0 +1,5 @@
+#!/bin/sh
+
+export NIX_PATH=nixpkgs=$HOME/src/nixpkgs:$NIX_PATH
+nix-build -K ~/src/bundix/test/default.nix --show-trace --option build-use-substitutes false
+

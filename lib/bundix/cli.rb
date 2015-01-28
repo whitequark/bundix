@@ -1,6 +1,7 @@
 require 'thor'
 require 'bundix'
 require 'fileutils'
+require 'pathname'
 
 class Bundix::CLI < Thor
   include Thor::Actions
@@ -24,17 +25,33 @@ class Bundix::CLI < Thor
   end
 
   desc 'expr', 'Creates a Nix expression for your project'
+  option :gemfile, type: :string, default: 'Gemfile.lock',
+                   desc: "Path to the project's Gemfile"
   option :lockfile, type: :string, default: 'Gemfile.lock',
                     desc: "Path to the project's Gemfile.lock"
   option :cachefile, type: :string, default: "#{ENV['HOME']}/.bundix/cache"
   option :target, type: :string, default: 'gemset.nix',
                   desc: 'Path to the target file'
+  option :lock, type: :boolean,
+                desc: 'Should the lockfile be created/updated?'
   def expr
     require 'bundix/prefetcher'
     require 'bundix/manifest'
 
-    lockfile = Bundler::LockfileParser.new(Bundler.read_file(options[:lockfile]))
-    specs = lockfile.specs
+    gemfile = Pathname.new(options[:gemfile])
+    specs = nil
+    definition = nil
+    Dir.chdir(gemfile.dirname) do
+      definition = Bundler::Definition.build(gemfile.basename, options[:lockfile], {})
+      definition.resolve_remotely!
+      specs = definition.resolve
+    end
+
+    if options[:lock]
+      #definition.to_lock
+      puts definition.to_lock
+      exit 1
+    end
 
     gems = Bundix::Prefetcher.new(shell).run(specs, Pathname.new(options[:cachefile]))
 
