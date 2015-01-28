@@ -3,6 +3,13 @@ require 'bundix'
 require 'fileutils'
 require 'pathname'
 
+class Bundler::Source::Git
+  def allow_git_ops?
+    # was: @allow_remote || @allow_cached
+    true
+  end
+end
+
 class Bundix::CLI < Thor
   include Thor::Actions
   default_task :expr
@@ -37,6 +44,9 @@ class Bundix::CLI < Thor
   def expr
     require 'bundix/prefetcher'
     require 'bundix/manifest'
+
+    Bundler.settings[:no_install] = true
+
 
     gemfile = Pathname.new(options[:gemfile])
     specs = nil
