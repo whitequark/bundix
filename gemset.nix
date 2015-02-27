@@ -1,21 +1,20 @@
 {
   "bundix" = {
-    version = "0.1.0";
+    version = "1.0.2";
     source = {
       type = "path";
       path = ./.;
       pathString = ".";
     };
     dependencies = [
-      "bundler"
       "thor"
     ];
   };
   "bundler" = {
-    version = "1.7.9";
+    version = "1.8.3";
     source = {
       type = "gem";
-      sha256 = "1gd201rh17xykab9pbqp0dkxfm7b9jri02llyvmrc0c5bz2vhycm";
+      sha256 = "1q8d6z8p46q9zrmpsya23plz6068r14g6vw9vasyj731n5kfsbps";
     };
   };
   "thor" = {
@@ -24,5 +23,8 @@
       type = "gem";
       sha256 = "08p5gx18yrbnwc6xc0mxvsfaxzgy2y9i78xq7ds0qmdm67q39y4z";
     };
+    dependencies = [
+      "bundler"
+    ];
   };
 }

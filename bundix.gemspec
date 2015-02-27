@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'bundix'
-  s.version     = '1.0.1'
+  s.version     = '1.0.2'
   s.licenses    = ['MIT']
   s.homepage    = 'https://github.com/cstrahan/bundix'
   s.summary     = "Creates Nix packages from Gemfiles."

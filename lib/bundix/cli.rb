@@ -3,44 +3,6 @@ require 'bundix'
 require 'fileutils'
 require 'pathname'
 
-# Because bundler gives me no choice...
-Bundler.module_eval do
-  class << self
-    def requires_sudo?
-      true
-    end
-  end
-end
-
-Bundler::Source::Git.class_eval do
-  def allow_git_ops?
-    # was: @allow_remote || @allow_cached
-    true
-  end
-
-  # Prevent bundler from trying to screw with /nix/store
-  def install_path
-    @install_path ||= begin
-      git_scope = "#{base_name}-#{shortref_for_path(revision)}"
-      Bundler.user_bundle_path.join(Bundler.ruby_scope).join(git_scope)
-    end
-  end
-end
-
-Bundler::Settings.class_eval do
-  # don't pollute $PWD with .bundle/config
-  def set_key(key, value, hash, file)
-    key = key_for(key)
-
-    unless hash[key] == value
-      hash[key] = value
-      hash.delete(key) if value.nil?
-    end
-
-    value
-  end
-end
-
 class Bundix::CLI < Thor
   include Thor::Actions
   default_task :expr
@@ -76,8 +38,6 @@ class Bundix::CLI < Thor
     require 'bundix/prefetcher'
     require 'bundix/manifest'
 
-    Bundler.settings[:no_install] = true
-
     lockfile = Pathname.new(options[:lockfile]).expand_path
     specs = nil
 
@@ -86,10 +46,12 @@ class Bundix::CLI < Thor
       gemfile = Pathname.new(options[:gemfile])
       definition = nil
       Dir.chdir(gemfile.dirname) do
-        definition = Bundler::Definition.build(gemfile.basename, lockfile, {})
+        # see: https://github.com/bundler/bundler/issues/3437
+        ENV["BUNDLE_GEMFILE"] = options[:gemfile]
+        definition = Bundler.definition(true)
         definition.resolve_remotely!
-        specs = definition.resolve
       end
+      specs = definition.specs
       create_file(lockfile, definition.to_lock, force: true)
     else
       lockfile = Bundler::LockfileParser.new(Bundler.read_file(options[:lockfile]))
