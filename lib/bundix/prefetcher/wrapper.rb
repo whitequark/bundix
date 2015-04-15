@@ -1,4 +1,7 @@
+require 'json'
+require 'open-uri'
 require 'bundix/prefetcher'
+require 'shellwords'
 
 # Wraps `nix-prefetch-scripts` to provide consistent output.
 module Bundix::Prefetcher::Wrapper
@@ -16,6 +19,36 @@ module Bundix::Prefetcher::Wrapper
     assert_format!(base32, /^[a-z0-9]+$/)
 
     base32
+  end
+
+  # Attempt to use the Rubygems.org API, returning nil if anything goes
+  # wrong.
+  def gem(name, version)
+    version = version.to_s
+
+    begin
+      json = open("https://rubygems.org/api/v1/versions/#{name}.json") {|f| f.read}
+      gems = JSON.parse(json)
+
+      gem = gems.detect do |g|
+        g["number"] == version && g["platform"] == "ruby"
+      end
+
+      if gem && gem["sha"]
+        # Rubygems.org was _supposed_ to provide base64 encoded SHA-256 hashes,
+        # but as of now the hashes are base16 encoded...
+        base16 = gem["sha"]
+        base32 = exec("nix-hash --type sha256 --to-base32 #{base16.shellescape}")
+        assert_length!(base32, 52)
+        assert_format!(base32, /^[a-z0-9]+$/)
+
+        base32
+      end
+    rescue Exception => ex
+      #puts ex.message
+      #puts ex.backtrace
+      nil
+    end
   end
 
   def url(url)

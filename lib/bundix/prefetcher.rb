@@ -41,11 +41,12 @@ class Bundix::Prefetcher
   end
 
   def build_source(spec)
-    source = spec.source
+    source  = spec.source
+
     case source
     when Bundler::Source::Rubygems
       url = File.join(source.remotes.first.to_s, 'downloads', "#{spec.name}-#{spec.version}.gem")
-      Bundix::Source::Gem.new(url)
+      Bundix::Source::Gem.new(spec.name, spec.version, url)
     when Bundler::Source::Git
       Bundix::Source::Git.new(source.uri, source.revision, !!source.submodules)
     when Bundler::Source::Path
@@ -65,7 +66,8 @@ class Bundix::Prefetcher
   def prefetch(source)
     case source
     when Bundix::Source::Gem
-      wrapper.url(source.url)
+      sha = source.rubygems_org? && wrapper.gem(source.name, source.version)
+      sha ||= wrapper.url(source.url)
     when Bundix::Source::Git
       wrapper.git(source.url, source.revision, source.submodules)
     end

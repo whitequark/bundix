@@ -1,4 +1,5 @@
 require 'bundix'
+require 'uri'
 
 module Bundix
   # The {Source} class represents all information necessary to fetch the source
@@ -50,11 +51,20 @@ module Bundix
     end
 
     class Gem < Base
+      attr_reader :name
+      attr_reader :version
       attr_reader :url
 
-      def initialize(url, sha256 = nil)
+      def initialize(name, version, url, sha256 = nil)
+        @name = name
+        @version = version
         @url = url
+        @uri = URI.parse(url)
         @sha256 = sha256
+      end
+
+      def rubygems_org?
+        @uri.host == "rubygems.org"
       end
 
       def components
