@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bundix (1.0.2)
+    bundix (1.0.4)
       thor (~> 0.19.1)
 
 GEM
@@ -14,3 +14,6 @@ PLATFORMS
 
 DEPENDENCIES
   bundix!
+
+BUNDLED WITH
+   1.10.5

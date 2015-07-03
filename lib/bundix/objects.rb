@@ -1,5 +1,6 @@
 require 'bundix'
 require 'uri'
+require 'digest/sha1'
 
 module Bundix
   # The {Source} class represents all information necessary to fetch the source
@@ -33,12 +34,14 @@ module Bundix
       attr_reader :url
       attr_reader :revision
       attr_reader :submodules
+      attr_reader :glob
 
-      def initialize(url, revision, submodules, sha256 = nil)
+      def initialize(url, revision, submodules, glob, sha256 = nil)
         @url = url
         @revision = revision
         @submodules = submodules
         @sha256 = sha256
+        @glob = glob
       end
 
       def components
@@ -53,31 +56,41 @@ module Bundix
     class Gem < Base
       attr_reader :name
       attr_reader :version
-      attr_reader :url
+      attr_reader :remotes
+      attr_reader :urls
+      attr_reader :rubygems_url
 
-      def initialize(name, version, url, sha256 = nil)
+      def initialize(name, version, remotes, sha256 = nil)
         @name = name
         @version = version
-        @url = url
-        @uri = URI.parse(url)
+        @remotes = remotes.map do |remote|
+          remote = remote.to_s.sub(%r{/$}, "")
+        end
         @sha256 = sha256
+        @urls = @remotes.map do |remote|
+          "#{remote}/gems/#{name}-#{version}.gem"
+        end
+        @rubygems_url = @urls.detect do |url|
+          URI.parse(url).host == "rubygems.org"
+        end
       end
 
       def rubygems_org?
-        @uri.host == "rubygems.org"
+        @rubygems_url != nil
       end
 
       def components
-        super + [url]
+        super + remotes.sort
       end
     end
 
     class Path < Base
       attr_reader :path
-      attr_reader :original_path
+      attr_reader :glob
 
-      def initialize(path)
+      def initialize(path, glob)
         @path = path
+        @glob = glob
       end
     end
   end

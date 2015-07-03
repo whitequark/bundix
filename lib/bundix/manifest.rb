@@ -32,11 +32,12 @@ __END__
     source = {
       type = "<%= gem.source.type %>";
       <%- if gem.source.type == 'git' -%>
-      url = "<%= gem.source.url %>";
+      url = "<%= gem.source.url.inspect %>";
       rev = "<%= gem.source.revision %>";
       sha256 = "<%= gem.source.sha256 %>";
       fetchSubmodules = <%= gem.source.submodules %>;
       <%- elsif gem.source.type == 'gem' -%>
+      remotes = "<%= gem.source.remotes.inspect %>";
       sha256 = "<%= gem.source.sha256 %>";
       <%- elsif gem.source.type == 'path' -%>
       path = <%= relative_path(gem.source.path) %>;

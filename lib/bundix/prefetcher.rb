@@ -18,8 +18,7 @@ class Bundix::Prefetcher
   def run(specs, cache_path)
     # Bundler flattens all of the dependencies that we care about.
     dep_names = Set.new(specs.map {|s| s.name})
-
-    cache = load_cache(cache_path)
+cache = load_cache(cache_path)
 
     result = specs.map do |spec|
       deps = spec.dependencies.map {|dep| dep.name}.select {|dep| dep_names.include?(dep)}.sort
@@ -45,12 +44,14 @@ class Bundix::Prefetcher
 
     case source
     when Bundler::Source::Rubygems
-      url = File.join(source.remotes.first.to_s, 'downloads', "#{spec.name}-#{spec.version}.gem")
-      Bundix::Source::Gem.new(spec.name, spec.version, url)
+      Bundix::Source::Gem.new(spec.name, spec.version, source.remotes)
     when Bundler::Source::Git
-      Bundix::Source::Git.new(source.uri, source.revision, !!source.submodules)
+      # TODO: get ref, too
+      glob = source.instance_variable_get("@glob")
+      Bundix::Source::Git.new(source.uri, source.revision, !!source.submodules, glob)
     when Bundler::Source::Path
-      Bundix::Source::Path.new(source.path.to_s)
+      glob = source.instance_variable_get("@glob")
+      Bundix::Source::Path.new(source.path.to_s, glob)
     else
       fail "Unhandled source type: #{source.class}"
     end
@@ -67,7 +68,7 @@ class Bundix::Prefetcher
     case source
     when Bundix::Source::Gem
       sha = source.rubygems_org? && wrapper.gem(source.name, source.version)
-      sha ||= wrapper.url(source.url)
+      sha ||= wrapper.url(source.urls.first) # XXX
     when Bundix::Source::Git
       wrapper.git(source.url, source.revision, source.submodules)
     end
