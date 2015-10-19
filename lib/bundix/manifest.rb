@@ -37,7 +37,7 @@ __END__
       sha256 = "<%= gem.source.sha256 %>";
       fetchSubmodules = <%= gem.source.submodules %>;
       <%- elsif gem.source.type == 'gem' -%>
-      remotes = "<%= gem.source.remotes.inspect %>";
+      remotes = <%= gem.source.remotes.inspect %>;
       sha256 = "<%= gem.source.sha256 %>";
       <%- elsif gem.source.type == 'path' -%>
       path = <%= relative_path(gem.source.path) %>;
