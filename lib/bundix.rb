@@ -1,9 +1,7 @@
-require 'erb'
-require 'pathname'
-
-require 'bundix/bundler_ext'
-require 'bundix/objects'
-
-# Generates a Nix expression for bundler-managed dependencies.
 module Bundix
+  autoload :CLI,        'bundix/cli'
+  autoload :Gem,        'bundix/gem'
+  autoload :Manifest,   'bundix/manifest'
+  autoload :Prefetcher, 'bundix/prefetcher'
+  autoload :Source,     'bundix/source'
 end

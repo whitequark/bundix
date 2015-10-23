@@ -18,9 +18,9 @@ class Bundix::Prefetcher
   def run(specs, cache_path)
     # Bundler flattens all of the dependencies that we care about.
     dep_names = Set.new(specs.map {|s| s.name})
-cache = load_cache(cache_path)
+    cache = load_cache(cache_path)
 
-    result = specs.map do |spec|
+    gems = specs.map do |spec|
       deps = spec.dependencies.map {|dep| dep.name}.select {|dep| dep_names.include?(dep)}.sort
       source = build_source(spec)
       source.sha256 = if cache.has?(source)
@@ -34,9 +34,10 @@ cache = load_cache(cache_path)
       Bundix::Gem.new(spec, source, deps)
     end
 
-    write_cache(cache_path, result)
+    gems.map(&:source).each { |source| cache.set(source) }
+    cache.write(cache_path)
 
-    result
+    gems
   end
 
   def build_source(spec)
@@ -72,16 +73,5 @@ cache = load_cache(cache_path)
     when Bundix::Source::Git
       wrapper.git(source.url, source.revision, source.submodules)
     end
-  end
-
-  # @param [Pathname] cache_path
-  # @param [Array<Bundix::Gem>] gems
-  def write_cache(cache_path, gems)
-    cache_dir = cache_path.dirname
-    cache_dir.mkpath unless cache_dir.exist?
-
-    cache = Cache.new
-    gems.map(&:source).each { |source| cache.set(source) }
-    cache.write(cache_path)
   end
 end

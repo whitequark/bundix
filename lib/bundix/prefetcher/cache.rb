@@ -1,10 +1,16 @@
 require 'bundix/prefetcher'
 require 'yaml'
+require 'pathname'
 
 class Bundix::Prefetcher::Cache
   class << self
-    def read(pathname)
-      new(YAML.load(pathname.read))
+    def read(path)
+      path = Pathname.new(path)
+      if path.exist?
+        new(YAML.load(path.read))
+      else
+        new
+      end
     end
   end
 
@@ -17,26 +23,19 @@ class Bundix::Prefetcher::Cache
   end
 
   def get(source)
-    source.components.inject(@cache) do |hash, component|
-      hash[component] || break
-    end
+    @cache[source.cache_key]
   end
 
   def set(source)
     return unless source.sha256
-
-    components = source.components.dup
-    last = components.pop
-
-    hash = components.inject(@cache) do |acc, component|
-      acc[component] ||= Hash.new
-    end
-
-    hash[last] = source.sha256
+    @cache[source.cache_key] = source.sha256
   end
 
   # @param [Pathname] path
   def write(path)
+    path = Pathname.new(path)
+    dir = path.dirname
+    dir.mkpath unless dir.exist?
     path.open('w') { |file| file.write(YAML.dump(@cache)) }
   end
 end

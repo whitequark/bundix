@@ -1,6 +1,6 @@
+require 'bundler'
 require 'thor'
 require 'bundix'
-require 'fileutils'
 require 'pathname'
 
 class Bundix::CLI < Thor
