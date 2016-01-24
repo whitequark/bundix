@@ -1,4 +1,4 @@
 #!/usr/bin/env ruby
 
 require_relative '../lib/bundix'
-Bundix::CLI.start(ARGV, debug: true)
+# Bundix::CLI.start(ARGV, debug: true)

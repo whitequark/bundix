@@ -5,10 +5,8 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/cstrahan/bundix'
   s.summary     = "Creates Nix packages from Gemfiles."
   s.description = "Creates Nix packages from Gemfiles."
-  s.authors     = ["Alexander Flatter" "Charles Strahan"]
-  s.email       = 'rubycoder@example.com'
+  s.authors     = ["Alexander Flatter", "Charles Strahan", "Michael 'manveru' Fellinger"]
   s.files       = Dir["bin/*"] + Dir["lib/**/*.rb"]
   s.bindir      = "bin"
   s.executables = [ "bundix" ]
-  s.add_runtime_dependency 'thor', '~> 0.19.1'
 end

@@ -1,12 +1,12 @@
 class Bundix::Prefetcher
   require_relative 'prefetcher/cache'
   require_relative 'prefetcher/wrapper'
+  require_relative 'source'
+  require_relative 'gem'
 
   attr_reader :wrapper
-  attr_reader :shell
 
-  def initialize(shell, wrapper = Wrapper)
-    @shell = shell
+  def initialize(wrapper = Wrapper)
     @wrapper = Wrapper
   end
 
@@ -21,13 +21,14 @@ class Bundix::Prefetcher
     gems = specs.map do |spec|
       deps = spec.dependencies.map {|dep| dep.name}.select {|dep| dep_names.include?(dep)}.sort
       source = build_source(spec)
-      source.sha256 = if cache.has?(source)
-                        shell.say_status('Cached', spec)
-                        cache.get(source)
-                      else
-                        shell.say_status('Prefetching', spec)
-                        prefetch(source)
-                      end
+      source.sha256 =
+        if cache.has?(source)
+          puts "Cached #{spec.name} #{spec.version}"
+          cache.get(source)
+        else
+          puts "Prefetching #{spec.name} #{spec.version}"
+          prefetch(source)
+        end
 
       Bundix::Gem.new(spec, source, deps)
     end
