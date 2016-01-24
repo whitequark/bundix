@@ -1,6 +1,5 @@
 require 'bundler'
 require 'thor'
-require 'bundix'
 require 'pathname'
 
 class Bundix::CLI < Thor
@@ -35,9 +34,6 @@ class Bundix::CLI < Thor
   option :lock, type: :boolean,
                 desc: 'Should the lockfile be created/updated?'
   def expr
-    require 'bundix/prefetcher'
-    require 'bundix/manifest'
-
     lockfile = Pathname.new(options[:lockfile]).expand_path
     specs = nil
 

@@ -1,8 +1,8 @@
 module Bundix
   module Source
-    autoload :Base, 'bundix/source/base'
-    autoload :Gem,  'bundix/source/gem'
-    autoload :Git,  'bundix/source/git'
-    autoload :Path, 'bundix/source/path'
+    require_relative 'source/base'
+    require_relative 'source/gem'
+    require_relative 'source/git'
+    require_relative 'source/path'
   end
 end

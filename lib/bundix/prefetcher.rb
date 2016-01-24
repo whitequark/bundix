@@ -1,8 +1,6 @@
-require 'bundix'
-
 class Bundix::Prefetcher
-  require 'bundix/prefetcher/cache'
-  require 'bundix/prefetcher/wrapper'
+  require_relative 'prefetcher/cache'
+  require_relative 'prefetcher/wrapper'
 
   attr_reader :wrapper
   attr_reader :shell

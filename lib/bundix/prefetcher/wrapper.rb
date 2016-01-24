@@ -1,6 +1,5 @@
 require 'json'
 require 'open-uri'
-require 'bundix/prefetcher'
 require 'shellwords'
 
 # Wraps `nix-prefetch-scripts` to provide consistent output.
@@ -44,10 +43,7 @@ module Bundix::Prefetcher::Wrapper
 
         base32
       end
-    rescue Exception => ex
-      #puts ex.message
-      #puts ex.backtrace
-      nil
+    rescue Exception
     end
   end
 

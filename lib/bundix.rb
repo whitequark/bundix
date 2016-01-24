@@ -1,7 +1,7 @@
 module Bundix
-  autoload :CLI,        'bundix/cli'
-  autoload :Gem,        'bundix/gem'
-  autoload :Manifest,   'bundix/manifest'
-  autoload :Prefetcher, 'bundix/prefetcher'
-  autoload :Source,     'bundix/source'
+  require_relative 'bundix/cli'
+  require_relative 'bundix/gem'
+  require_relative 'bundix/manifest'
+  require_relative 'bundix/prefetcher'
+  require_relative 'bundix/source'
 end

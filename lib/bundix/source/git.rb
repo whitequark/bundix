@@ -1,5 +1,3 @@
-require 'bundix/source/base'
-
 module Bundix
   module Source
     class Git < Base

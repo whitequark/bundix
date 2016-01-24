@@ -1,4 +1,3 @@
-require 'bundix/source/base'
 require 'uri'
 
 module Bundix

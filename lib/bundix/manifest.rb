@@ -1,5 +1,5 @@
-require 'bundix'
 require 'pathname'
+require 'json'
 require 'erb'
 require 'pathname'
 
@@ -25,7 +25,7 @@ class Bundix::Manifest
     ERB.new(template, nil, '->').result(binding)
   end
 end
-JSON
+
 __END__
 {
   <%- gems.each do |gem| -%>

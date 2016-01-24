@@ -1,4 +1,3 @@
-require 'bundix/prefetcher'
 require 'yaml'
 require 'pathname'
 
