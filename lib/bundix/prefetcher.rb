@@ -34,7 +34,7 @@ class Bundix::Prefetcher
       Bundix::Gem.new(spec, source, deps)
     end
 
-    gems.map(&:source).each { |source| cache.set(source) }
+    gems.each { |gem| cache.set(gem.source) }
     cache.write(cache_path)
 
     gems
@@ -69,7 +69,15 @@ class Bundix::Prefetcher
     case source
     when Bundix::Source::Gem
       sha = source.rubygems_org? && wrapper.gem(source.name, source.version)
-      sha ||= wrapper.url(source.urls.first) # XXX
+      return sha if sha
+
+      source.urls.find do |url|
+        begin
+          wrapper.url(url)
+        rescue Thor::Error
+          nil
+        end
+      end
     when Bundix::Source::Git
       wrapper.git(source.url, source.revision, source.submodules)
     end
