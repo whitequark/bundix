@@ -119,12 +119,3 @@ module Bundix
     end
   end
 end
-
-cli = Bundix::CLI.new(ARGV)
-command = ARGV.shift
-if cli.commands.include?(command)
-  cli.send("#{command}_options").order!
-  cli.send(command)
-elsif command
-  puts cli.global.help
-end
