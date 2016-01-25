@@ -7,6 +7,9 @@ command = ARGV.shift
 if cli.commands.include?(command)
   cli.send("#{command}_options").order!
   cli.send(command)
-elsif command
+elsif command # show help on unknown commands
   puts cli.global.help
+else
+  cli.expr_options
+  cli.expr
 end
