@@ -1,17 +1,12 @@
-module Bundix
-  module Source
-    class Path < Base
-      attr_reader :path
-      attr_reader :glob
+class Bundix::Source::Path < Bundix::Source::Base
+  attr_reader :path, :glob
 
-      def initialize(path, glob)
-        @path = path
-        @glob = glob
-      end
+  def initialize(path, glob)
+    @path = path
+    @glob = glob
+  end
 
-      def cache_key
-        nil
-      end
-    end
+  def cache_key
+    nil
   end
 end

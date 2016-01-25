@@ -3,13 +3,17 @@
 require_relative '../lib/bundix'
 
 cli = Bundix::CLI.new(ARGV)
-command = ARGV.shift
-if cli.commands.include?(command)
+
+case ARGV.shift
+when *cli.commands
   cli.send("#{command}_options").order!
   cli.send(command)
-elsif command # show help on unknown commands
+when 'help'
   puts cli.global.help
-else
+when nil
   cli.expr_options
   cli.expr
+else
+  puts cli.global.help
+  exit 1
 end

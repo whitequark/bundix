@@ -1,3 +1,5 @@
+require 'set'
+
 class Bundix::Prefetcher
   require_relative 'prefetcher/cache'
   require_relative 'prefetcher/wrapper'
@@ -73,7 +75,7 @@ class Bundix::Prefetcher
       source.urls.find do |url|
         begin
           wrapper.url(url)
-        rescue Thor::Error
+        rescue
           nil
         end
       end

@@ -54,7 +54,7 @@ module Bundix::Prefetcher::Wrapper
   end
 
   def url(url)
-    hash = exec("nix-prefetch-url #{url}")
+    hash = exec('nix-prefetch-url', url)
 
     # nix-prefetch-url returns a base32-encoded sha256 hash
     assert_length!(hash, 52)

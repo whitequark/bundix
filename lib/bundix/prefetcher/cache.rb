@@ -4,9 +4,8 @@ require 'pathname'
 class Bundix::Prefetcher::Cache
   class << self
     def read(path)
-      path = Pathname.new(path)
-      if path.exist?
-        new(YAML.load(path.read))
+      if File.file?(path)
+        new(YAML.load_file(path))
       else
         new
       end
