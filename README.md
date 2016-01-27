@@ -20,7 +20,9 @@ I recommend first reading the
 as this README might become outdated, it's a short read right now, so you won't
 regret it.
 
-1. Change to your project's directory and run this:
+1. Making a gemset.nix
+
+Change to your project's directory and run this:
 
     bundler package
     bundler lock
@@ -29,44 +31,52 @@ regret it.
 This will generate a `gemset.nix` file that you then can use in your
 `bundlerEnv` expression like this:
 
-2. To try your package in `nix-shell`, create a `default.nix` like this:
+2. Using `nix-shell`
 
-    with (import <nixpkgs> {});
-    let
-      env = bundlerEnv {
-        name = "your-package";
-        inherit ruby;
-        gemfile = ./Gemfile;
-        lockfile = ./Gemfile.lock;
-        gemset = ./gemset.nix;
-      };
-    in stdenv.mkDerivation {
-      name = "your-package";
-      buildInputs = [env ruby];
-    }
+To try your package in `nix-shell`, create a `default.nix` like this:
+
+```nix
+with (import <nixpkgs> {});
+let
+  env = bundlerEnv {
+    name = "your-package";
+    inherit ruby;
+    gemfile = ./Gemfile;
+    lockfile = ./Gemfile.lock;
+    gemset = ./gemset.nix;
+  };
+in stdenv.mkDerivation {
+  name = "your-package";
+  buildInputs = [env ruby];
+}
+```
 
 and then simply run `nix-shell`.
 
-3. To make a proper nixpkgs package, you can try something like this:
+3. Proper packages
 
-    { stdenv, bundlerEnv, ruby }:
-    let
-    env = bundlerEnv {
-      name = "your-package";
-      inherit ruby;
-      gemfile  = ./Gemfile;
-      lockfile = ./Gemfile.lock;
-      gemset   = ./gemset.nix;
-    };
-    in stdenv.mkDerivation {
-      name = "your-package";
-      src = ./.;
-      buildInputs = [ ruby env ];
-      installPhase = ''
-        mkdir -p $out
-        cp -r $src $out
-      '';
-    }
+To make a package for nixpkgs, you can try something like this:
+
+```nix
+{ stdenv, bundlerEnv, ruby }:
+let
+env = bundlerEnv {
+  name = "your-package";
+  inherit ruby;
+  gemfile  = ./Gemfile;
+  lockfile = ./Gemfile.lock;
+  gemset   = ./gemset.nix;
+};
+in stdenv.mkDerivation {
+name = "your-package";
+src = ./.;
+buildInputs = [ ruby env ];
+installPhase = ''
+    mkdir -p $out
+    cp -r $src $out
+  '';
+}
+```
 
 ## How & Why
 
