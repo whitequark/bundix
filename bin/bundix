@@ -1,19 +1,44 @@
 #!/usr/bin/env ruby
 
+require 'optparse'
+
 require_relative '../lib/bundix'
 
-cli = Bundix::CLI.new(ARGV)
+options = {}
 
-case ARGV.shift
-when *cli.commands
-  cli.send("#{command}_options").order!
-  cli.send(command)
-when 'help'
-  puts cli.global.help
-when nil
-  cli.expr_options
-  cli.expr
-else
-  puts cli.global.help
-  exit 1
+op = OptionParser.new do |o|
+  o.on '--gemset=gemset.nix', 'path to the gemset.nix' do |value|
+    options[:gemset] = File.expand_path(value)
+  end
+
+  o.on '--lockfile=Gemfile.lock', 'path to the Gemfile.lock' do |value|
+    options[:lockfile] = File.expand_path(value)
+  end
+
+  o.on '-d', '--dependencies', 'include gem dependencies' do
+    options[:deps] = true
+  end
+
+  o.on '-q', '--quiet', 'only output errors' do
+    options[:quiet] = true
+  end
+
+  o.on '-v', '--version', 'show the version of bundix' do
+    puts Bundix::VERSION
+    exit
+  end
+end
+
+op.parse!
+$VERBOSE = !options[:quiet]
+gemset = Bundix.new(options).convert
+
+tempfile = Tempfile.new('gemset.nix', encoding: 'UTF-8')
+begin
+  Bundix.object2nix(gemset, 2, tempfile)
+  tempfile.close
+  FileUtils.cp(tempfile.path, options[:gemset])
+ensure
+  tempfile.close!
+  tempfile.unlink
 end
