@@ -9,9 +9,12 @@ You can either get this via rubygems:
 
     gem install bundix
 
-or if you already have nix installed:
+Or once it gets into nixpkgs:
 
     nix-env -iA bundix
+
+Please note that in order to actually use this gem you must Nix installed
+already.
 
 ## Basic Usage
 
