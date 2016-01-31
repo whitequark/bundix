@@ -7,7 +7,7 @@ require 'pp'
 require_relative 'bundix/source'
 
 class Bundix
-  VERSION = '2.0.1'
+  VERSION = '2.0.2'
 
   NIX_INSTANTIATE = 'nix-instantiate'
   NIX_PREFETCH_URL = 'nix-prefetch-url'
