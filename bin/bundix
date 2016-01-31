@@ -4,7 +4,9 @@ require 'optparse'
 
 require_relative '../lib/bundix'
 
-options = {}
+options = {
+  gemset: 'gemset.nix'
+}
 
 op = OptionParser.new do |o|
   o.on '--gemset=gemset.nix', 'path to the gemset.nix' do |value|
@@ -36,7 +38,7 @@ gemset = Bundix.new(options).convert
 tempfile = Tempfile.new('gemset.nix', encoding: 'UTF-8')
 begin
   Bundix.object2nix(gemset, 2, tempfile)
-  tempfile.close
+  tempfile.flush
   FileUtils.cp(tempfile.path, options[:gemset])
 ensure
   tempfile.close!

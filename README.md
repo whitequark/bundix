@@ -13,8 +13,7 @@ Or once it gets into nixpkgs:
 
     nix-env -iA bundix
 
-Please note that in order to actually use this gem you must Nix installed
-already.
+Please note that in order to actually use this gem you must have Nix installed.
 
 ## Basic Usage
 
