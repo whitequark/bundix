@@ -9,4 +9,5 @@ Gem::Specification.new do |s|
   s.files       = Dir['bin/*'] + Dir['lib/**/*.rb']
   s.bindir      = 'bin'
   s.executables = ['bundix']
+  s.add_runtime_dependency 'bundler', '~> 1.11.2'
 end
