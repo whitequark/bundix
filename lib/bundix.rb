@@ -38,7 +38,7 @@ class Bundix
       name, cached = cache.find{|k, v|
         k == spec.name &&
           v['version'] == spec.version.to_s &&
-          v.dig('source', 'sha256').to_s.size == 52
+          v['source'] && v['source']['sha256'].to_s.size == 52
       }
 
       if cached
