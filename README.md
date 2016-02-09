@@ -26,8 +26,8 @@ regret it.
 
 Change to your project's directory and run this:
 
-    bundler package
     bundler lock
+    bundler package --path vendor/cache --no-install
     bundix
 
 This will generate a `gemset.nix` file that you then can use in your
@@ -112,4 +112,8 @@ I hope you enjoy using bundix as much as I do, and if you don't, let me know.
 For any questions or suggestions, please file an issue on Github or ask in
 `#nixos` on [Freenode](http://freenode.net/).
 
-Big thanks go out to [Charles Strahan](http://www.cstrahan.com/) for his awesome work bringing Ruby to Nix, [zimbatm](https://zimbatm.com/) for being a good rubber duck and tester, and [Alexander Flatter](https://github.com/aflatter) for the original bundix. I couldn't have done this without you guys.
+Big thanks go out to
+[Charles Strahan](http://www.cstrahan.com/) for his awesome work bringing Ruby to Nix,
+[zimbatm](https://zimbatm.com/) for being a good rubber duck and tester, and
+[Alexander Flatter](https://github.com/aflatter) for the original bundix. I
+couldn't have done this without you guys.

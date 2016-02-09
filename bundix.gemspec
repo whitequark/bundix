@@ -1,6 +1,8 @@
+require_relative 'lib/bundix/version'
+
 Gem::Specification.new do |s|
   s.name        = 'bundix'
-  s.version     = '2.0.3'
+  s.version     = Bundix::VERSION
   s.licenses    = ['MIT']
   s.homepage    = 'https://github.com/manveru/bundix'
   s.summary     = 'Creates Nix packages from Gemfiles.'
@@ -9,5 +11,5 @@ Gem::Specification.new do |s|
   s.files       = Dir['bin/*'] + Dir['lib/**/*.rb']
   s.bindir      = 'bin'
   s.executables = ['bundix']
-  s.add_runtime_dependency 'bundler', '~> 1.11.2'
+  s.add_runtime_dependency 'bundler', '~> 1.11'
 end

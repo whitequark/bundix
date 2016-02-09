@@ -4,11 +4,10 @@ require 'open-uri'
 require 'open3'
 require 'pp'
 
+require_relative 'bundix/version'
 require_relative 'bundix/source'
 
 class Bundix
-  VERSION = '2.0.3'
-
   NIX_INSTANTIATE = 'nix-instantiate'
   NIX_PREFETCH_URL = 'nix-prefetch-url'
   NIX_PREFETCH_GIT = 'nix-prefetch-git'
@@ -35,27 +34,41 @@ class Bundix
 
     # reverse so git comes last
     lock.specs.reverse_each.with_object({}) do |spec, gems|
-      name, cached = cache.find{|k, v|
-        k == spec.name &&
-          v['version'] == spec.version.to_s &&
-          v['source'] && v['source']['sha256'].to_s.size == 52
-      }
-
-      if cached
-        gems[name] = cached
-        next
-      end
-
-      gems[spec.name] = {
-        version: spec.version.to_s,
-        source: Source.new(spec).convert
-      }
+      gem = find_cached_spec(spec, cache) || convert_spec(spec, cache)
+      gems.merge!(gem)
 
       if options[:deps] && spec.dependencies.any?
         gems[spec.name][:dependencies] = spec.dependencies.map(&:name) - ['bundler']
       end
     end
   end
+
+  def convert_spec(spec, cache)
+    {spec.name => {version: spec.version.to_s, source: Source.new(spec).convert}}
+  rescue => ex
+    warn "Skipping #{spec.name}: #{ex}"
+    puts ex.backtrace
+    {spec.name => {}}
+  end
+
+  def find_cached_spec(spec, cache)
+    name, cached = cache.find{|k, v|
+      next unless k == spec.name
+      next unless cached_source = v['source']
+
+      case spec_source = spec.source
+      when Bundler::Source::Git
+        next unless cached_rev = cached_source['rev']
+        next unless spec_rev = spec_source.options['revision']
+        spec_rev == cached_rev
+      when Bundler::Source::Rubygems
+        v['version'] == spec.version.to_s
+      end
+    }
+
+    {name => cached} if cached
+  end
+
 
   def parse_gemset
     path = File.expand_path(options[:gemset])
