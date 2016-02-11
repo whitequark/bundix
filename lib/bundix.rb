@@ -38,7 +38,7 @@ class Bundix
       gems.merge!(gem)
 
       if options[:deps] && spec.dependencies.any?
-        gems[spec.name][:dependencies] = spec.dependencies.map(&:name) - ['bundler']
+        gems[spec.name]['dependencies'] = spec.dependencies.map(&:name) - ['bundler']
       end
     end
   end
