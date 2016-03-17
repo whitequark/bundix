@@ -86,7 +86,7 @@ class Bundix
     case obj
     when Hash
       out << "{\n"
-      obj.each do |k, v|
+      obj.sort.each do |(k, v)|
         out << ' ' * level
         if k.to_s =~ /^[a-zA-Z_-]+[a-zA-Z0-9_-]*$/
           out << k.to_s
@@ -99,7 +99,7 @@ class Bundix
       end
       out << (' ' * (level - 2)) << (level == 2 ? '}' : '};')
     when Array
-      out << '[' << obj.map{|o| o.to_str.dump }.join(' ') << ']'
+      out << '[' << obj.sort.map{|o| o.to_str.dump }.join(' ') << ']'
     when String
       out << obj.dump
     when Symbol
