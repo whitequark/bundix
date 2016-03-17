@@ -73,8 +73,9 @@ class Bundix
     def convert_git
       revision = spec.source.options.fetch('revision')
       uri = spec.source.options.fetch('uri')
-      hash = nix_prefetch_git(uri, revision).split.last
-      hash = sh(NIX_HASH, '--type', 'sha256', '--to-base32', hash)[SHA256_32]
+      output = nix_prefetch_git(uri, revision)
+      # FIXME: this is a hack, we should separate $stdout/$stderr in the sh call
+      hash = JSON.parse(output[/({[^}]+})\s*\z/m])['sha256']
       fail "couldn't fetch hash for #{spec.name}-#{spec.version}" unless hash
       puts "#{hash} => #{uri}" if $VERBOSE
 

@@ -86,7 +86,7 @@ class Bundix
     case obj
     when Hash
       out << "{\n"
-      obj.sort.each do |(k, v)|
+      obj.sort_by{|k, v| k.to_s.downcase }.each do |(k, v)|
         out << ' ' * level
         if k.to_s =~ /^[a-zA-Z_-]+[a-zA-Z0-9_-]*$/
           out << k.to_s
