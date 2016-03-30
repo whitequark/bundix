@@ -12,6 +12,7 @@ class Bundix
   NIX_PREFETCH_URL = 'nix-prefetch-url'
   NIX_PREFETCH_GIT = 'nix-prefetch-git'
   NIX_HASH = 'nix-hash'
+  NIX_SHELL = 'nix-shell'
 
   SHA256_32 = %r(^[a-z0-9]{52}$)
   SHA256_16 = %r(^[a-f0-9]{64}$)
@@ -20,8 +21,6 @@ class Bundix
 
   def initialize(options)
     @options = {
-      gemset: './gemset.nix',
-      lockfile: './Gemfile.lock',
       quiet: false,
       tempfile: nil,
       deps: false
