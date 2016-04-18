@@ -4,17 +4,20 @@ require 'optparse'
 require 'tmpdir'
 require 'pathname'
 
+ENV.delete('SSL_CERT_FILE') if ENV['SSL_CERT_FILE'] == '/no-cert-file.crt'
+
+require_relative '../lib/bundix'
 require_relative '../lib/bundix/version'
 
 class Bundix
   OPTIONS = {
     ruby: 'ruby',
-    bundle_pack_path: 'vendor/bundle',
-    gemfile: 'Gemfile',
-    lockfile: 'Gemfile.lock',
+    gemfile: nil,
+    lockfile: nil,
     gemset: 'gemset.nix',
     lock: false,
     cache: false,
+    quiet: false,
     groups: []
   }
 
@@ -64,7 +67,8 @@ class Bundix
   op.parse!
   $VERBOSE = !OPTIONS[:quiet]
 
-  require_relative '../lib/bundix'
+  OPTIONS[:gemfile] ||= Bundler.default_gemfile
+  OPTIONS[:lockfile] ||= Bundler.default_lockfile
 
   if OPTIONS[:init]
     if File.file?('shell.nix')

@@ -1,10 +1,7 @@
 require 'bundler'
 require 'json'
-require 'open-uri'
 require 'open3'
-require 'tsort'
 require 'set'
-require 'pp'
 
 require_relative 'bundix/version'
 require_relative 'bundix/source'
@@ -21,14 +18,7 @@ class Bundix
   attr_reader :options
 
   def initialize(options)
-    @options = {
-      quiet: false,
-      tempfile: nil,
-      gemfile: Bundler.default_gemfile,
-      lockfile: Bundler.default_lockfile,
-      lock: false,
-      deps: false
-    }.merge(options)
+    @options = options
   end
 
   def convert

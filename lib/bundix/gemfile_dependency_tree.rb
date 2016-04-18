@@ -1,4 +1,5 @@
 require 'bundler'
+require 'set'
 
 class GemfileDependencyTree
   Spec = Struct.new(:name, :groups, :source, :version, :dependencies)
@@ -11,7 +12,7 @@ class GemfileDependencyTree
       else
         definitions.resolve_remotely!
       end
-    definitions.lock(Bundler.default_lockfile) if options.fetch(:lock)
+    definitions.lock(optons.fetch(:lockfile)) if options.fetch(:lock)
 
     result = {}
     definitions.dependencies.each do |dependency|
@@ -28,7 +29,7 @@ class GemfileDependencyTree
     @children = dependencies.map{|d| self.class.new(d, specs, groups) }
   end
 
-  def run(seen = [], result = {})
+  def run(seen = Set.new, result = {})
     children = @children.reject{|c| seen.include?(c.name) }
     add_group(result, @spec)
 
