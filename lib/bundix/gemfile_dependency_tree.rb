@@ -1,21 +1,30 @@
 require 'bundler'
 require 'set'
 
-class GemfileDependencyTree
+class Bundix::GemfileDependencyTree
   Spec = Struct.new(:name, :groups, :source, :version, :dependencies)
 
   def self.run(options)
-    definitions = Bundler::Dsl.evaluate(options.fetch(:gemfile), nil, {})
+    definition = Bundler::Dsl.evaluate(Bundler.settings[:gemfile], nil, {})
     specs =
       if options.fetch(:cache)
-        definitions.resolve_with_cache!
+        puts "resolving #{Bundler.settings[:gemfile]} dependencies with cache" if $VERBOSE
+        definition.resolve_with_cache!
       else
-        definitions.resolve_remotely!
+        puts "resolving #{Bundler.settings[:gemfile]} dependencies remotely" if $VERBOSE
+        definition.resolve_remotely!
       end
-    definitions.lock(optons.fetch(:lockfile)) if options.fetch(:lock)
+
+    unless Bundler.settings[:frozen]
+      puts "writing #{Bundler.settings[:lockfile]}" if $VERBOSE
+      puts definition.to_lock
+      p definition.lock(Bundler.settings[:lockfile])
+    end
 
     result = {}
-    definitions.dependencies.each do |dependency|
+    definition.dependencies.each do |dependency|
+      p specs.map(&:name)
+      p specs.map(&:name).size
       new(dependency, specs, dependency.groups).run([], result)
     end
 
@@ -25,6 +34,7 @@ class GemfileDependencyTree
   def initialize(dep, specs, groups)
     @dep = dep
     @spec = specs.find{|s| s.name == dep.name }
+    p @spec
     @groups = groups.map(&:to_s)
     @children = dependencies.map{|d| self.class.new(d, specs, groups) }
   end

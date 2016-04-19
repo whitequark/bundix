@@ -12,14 +12,13 @@ require_relative '../lib/bundix/version'
 class Bundix
   OPTIONS = {
     ruby: 'ruby',
-    gemfile: nil,
-    lockfile: nil,
     gemset: 'gemset.nix',
-    lock: false,
     cache: false,
     quiet: false,
     groups: []
   }
+
+  Bundler.settings[:frozen] = true
 
   op = OptionParser.new do |o|
     o.on '--ruby=ruby', 'ruby version to use for init, defaults to latest' do |value|
@@ -35,15 +34,15 @@ class Bundix
     end
 
     o.on '--gemfile=Gemfile', 'path to the Gemfile' do |value|
-      OPTIONS[:gemfile] = File.expand_path(value)
+      Bundler.settings[:gemfile] = Pathname(value)
     end
 
     o.on '--lockfile=Gemfile.lock', 'path to the Gemfile.lock' do |value|
-      OPTIONS[:lockfile] = File.expand_path(value)
+      Bundler.settings[:lockfile] = Pathname(value)
     end
 
     o.on '-l', '--lock', 'create Gemfile.lock for given groups' do |groups|
-      OPTIONS[:lock] = true
+      Bundler.settings[:frozen] = false
     end
 
     o.on '-c', '--cache', 'resolve dependencies from cache' do
@@ -67,9 +66,6 @@ class Bundix
   op.parse!
   $VERBOSE = !OPTIONS[:quiet]
 
-  OPTIONS[:gemfile] ||= Bundler.default_gemfile
-  OPTIONS[:lockfile] ||= Bundler.default_lockfile
-
   if OPTIONS[:init]
     if File.file?('shell.nix')
       warn "won't override existing shell.nix"
@@ -77,7 +73,8 @@ class Bundix
       shell_nix = File.read(File.expand_path('../template/shell.nix', __dir__))
       shell_nix.gsub!('PROJECT', File.basename(Dir.pwd))
       shell_nix.gsub!('RUBY', OPTIONS[:ruby])
-      shell_nix.gsub!('LOCKFILE', "./#{Pathname(OPTIONS[:lockfile]).relative_path_from(Pathname('./'))}")
+      shell_nix.gsub!('GEMFILE', "./#{Bundler.settings[:gemfile].relative_path_from(Pathname('./'))}")
+      shell_nix.gsub!('LOCKFILE', "./#{Bundler.settings[:lockfile].relative_path_from(Pathname('./'))}")
       shell_nix.gsub!('GEMSET', "./#{Pathname(OPTIONS[:gemset]).relative_path_from(Pathname('./'))}")
       File.write('shell.nix', shell_nix)
     end
