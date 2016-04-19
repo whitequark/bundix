@@ -1,3 +1,5 @@
+require 'pp'
+
 class Bundix
   class Source < Struct.new(:spec, :definition)
     def convert
