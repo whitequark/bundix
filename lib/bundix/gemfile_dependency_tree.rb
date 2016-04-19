@@ -4,6 +4,8 @@ require 'set'
 class Bundix::GemfileDependencyTree
   Spec = Struct.new(:name, :groups, :source, :version, :dependencies)
 
+  attr_reader :options
+
   def self.run(options)
     definition = Bundler::Dsl.evaluate(Bundler.settings[:gemfile], nil, {})
     specs =
@@ -17,26 +19,23 @@ class Bundix::GemfileDependencyTree
 
     unless Bundler.settings[:frozen]
       puts "writing #{Bundler.settings[:lockfile]}" if $VERBOSE
-      puts definition.to_lock
-      p definition.lock(Bundler.settings[:lockfile])
+      definition.lock(Bundler.settings[:lockfile])
     end
 
     result = {}
     definition.dependencies.each do |dependency|
-      p specs.map(&:name)
-      p specs.map(&:name).size
-      new(dependency, specs, dependency.groups).run([], result)
+      new(dependency, specs, dependency.groups, options).run([], result)
     end
 
     result
   end
 
-  def initialize(dep, specs, groups)
+  def initialize(dep, specs, groups, options)
     @dep = dep
     @spec = specs.find{|s| s.name == dep.name }
-    p @spec
     @groups = groups.map(&:to_s)
-    @children = dependencies.map{|d| self.class.new(d, specs, groups) }
+    @options = options
+    @children = dependencies.map{|d| self.class.new(d, specs, groups, options) }
   end
 
   def run(seen = Set.new, result = {})
@@ -72,6 +71,10 @@ class Bundix::GemfileDependencyTree
   end
 
   def dependencies
-    @spec.dependencies.reject{|d| d.type == :development }
+    if options[:development_dependencies]
+      @spec.dependencies
+    else
+      @spec.dependencies.reject{|d| d.type == :development }
+    end
   end
 end

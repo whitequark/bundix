@@ -15,6 +15,7 @@ class Bundix
     gemset: 'gemset.nix',
     cache: false,
     quiet: false,
+    development_dependencies: false,
     groups: []
   }
 
@@ -51,6 +52,10 @@ class Bundix
 
     o.on '-g', '--groups [GROUP1,GROUP2]', Array, 'only use these groups for the lockfile' do |groups|
       OPTIONS[:groups].concat groups.map(&:to_sym)
+    end
+
+    o.on '--development-dependencies', 'include development dependencies from gemspecs in the set' do
+      OPTIONS[:development_dependencies] = true
     end
 
     o.on '-q', '--quiet', 'only output errors' do
