@@ -18,6 +18,7 @@ class Bundix
 
     def nix_prefetch_url(*args)
       sh(NIX_PREFETCH_URL, '--type', 'sha256', *args)
+      .force_encoding('UTF-8')
     rescue
       nil
     end
@@ -52,8 +53,11 @@ class Bundix
 
     def fetch_remote_hash(spec, remote)
       uri = "#{remote}/gems/#{spec.name}-#{spec.version}.gem"
-      nix_prefetch_url(uri)[SHA256_32]
-    rescue
+      result = nix_prefetch_url(uri).force_encoding('UTF-8')
+      result[SHA256_32]
+    rescue => e
+      puts "ignoring error during fetching: #{e}"
+      puts e.backtrace
       nil
     end
 
