@@ -2,6 +2,7 @@
 
 require 'optparse'
 require 'tmpdir'
+require 'tempfile'
 require 'pathname'
 
 require_relative '../lib/bundix'
