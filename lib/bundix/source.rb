@@ -12,13 +12,13 @@ class Bundix
       end
     end
 
-    def sh(*args)
-      Bundix.sh(*args)
+    def sh(*args, &block)
+      Bundix.sh(*args, &block)
     end
 
-    def nix_prefetch_url(*args)
-      sh(NIX_PREFETCH_URL, '--type', 'sha256', *args)
-      .force_encoding('UTF-8')
+    def nix_prefetch_url(url)
+      sh(NIX_BUILD, '--argstr', 'url', url, FETCHURL_FORCE, &FETCHURL_FORCE_CHECK)
+        .force_encoding('UTF-8')
     rescue
       nil
     end
