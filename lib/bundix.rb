@@ -63,10 +63,12 @@ class Bundix
 
       case spec_source = spec.source
       when Bundler::Source::Git
+        next unless cached_source['type'] == 'git'
         next unless cached_rev = cached_source['rev']
         next unless spec_rev = spec_source.options['revision']
         spec_rev == cached_rev
       when Bundler::Source::Rubygems
+        next unless cached_source['type'] == 'gem'
         v['version'] == spec.version.to_s
       end
     }
