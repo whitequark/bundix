@@ -23,7 +23,7 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [ ruby bundler ];
 
   meta = {
-    inherit version;
+    version = "2.2.0";
     description = "Creates Nix packages from Gemfiles";
     longDescription = ''
       This is a tool that converts Gemfile.lock files to nix expressions.

@@ -20,11 +20,11 @@ op = OptionParser.new do |o|
     options[:magic] = true
   end
 
-  o.on '--ruby=ruby', 'ruby version to use for magic and init, defaults to latest' do |value|
+  o.on "--ruby=#{options.ruby}", 'ruby version to use for magic and init, defaults to latest' do |value|
     options[:ruby] = value
   end
 
-  o.on '--bundle-pack-path=vendor/bundle', "path to pack the magic" do |value|
+  o.on "--bundle-pack-path=#{options.bundle_pack_path}", "path to pack the magic" do |value|
     options[:bundle_pack_path] = value
   end
 
@@ -32,11 +32,11 @@ op = OptionParser.new do |o|
     options[:init] = true
   end
 
-  o.on '--gemset=gemset.nix', 'path to the gemset.nix' do |value|
+  o.on "--gemset=#{options.gemset}", 'path to the gemset.nix' do |value|
     options[:gemset] = File.expand_path(value)
   end
 
-  o.on '--lockfile=Gemfile.lock', 'path to the Gemfile.lock' do |value|
+  o.on "--lockfile=#{options.lockfile}", 'path to the Gemfile.lock' do |value|
     options[:lockfile] = File.expand_path(value)
   end
 
