@@ -14,7 +14,8 @@ class Bundix
         gemset: 'gemset.nix',
         quiet: false,
         tempfile: nil,
-        deps: false
+        deps: false,
+        project: File.basename(Dir.pwd)
     }
 
     def self.run
@@ -92,29 +93,65 @@ class Bundix
       end
     end
 
+    class ShellNixContext < Struct.new(:project, :ruby, :gemfile, :lockfile, :gemset)
+      def self.from_hash(hash)
+        p, r, gf, l, gs = hash.values_at(:project, :ruby, :gemfile, :lockfile, :gemset)
+        self.new(p,r,gf,l,gs)
+      end
+
+      def bind
+        binding
+      end
+
+      def path_for(file)
+        "./#{Pathname(file).relative_path_from(Pathname('./'))}"
+      end
+
+      def gemfile_path
+        path_for(gemfile)
+      end
+
+      def lockfile_path
+        path_for(lockfile)
+      end
+
+      def gemset_path
+        path_for(gemset)
+      end
+    end
+
     def handle_init(options)
       if options[:init]
         if File.file?('shell.nix')
           warn "won't override existing shell.nix"
         else
-          shell_nix = File.read(File.expand_path('../template/shell.nix', __dir__))
-          shell_nix.gsub!('PROJECT', File.basename(Dir.pwd))
-          shell_nix.gsub!('RUBY', options[:ruby])
-          shell_nix.gsub!('LOCKFILE', "./#{Pathname(options[:lockfile]).relative_path_from(Pathname('./'))}")
-          shell_nix.gsub!('GEMSET', "./#{Pathname(options[:gemset]).relative_path_from(Pathname('./'))}")
-          File.write('shell.nix', shell_nix)
+          File.write('shell.nix', shell_nix_string)
         end
       end
+    end
+
+    def shell_nix_string(options)
+      tmpl = ERB.new(File.read(File.expand_path('../../template/shell.nix', __dir__)))
+      tmpl.result(ShellNixContext.from_hash(options).bind)
+
+#      shell_nix.gsub!('PROJECT', options[:project] )
+#      shell_nix.gsub!('RUBY', options[:ruby])
+#      shell_nix.gsub!('LOCKFILE', "./#{Pathname(options[:lockfile]).relative_path_from(Pathname('./'))}")
+#      shell_nix.gsub!('GEMSET', "./#{Pathname(options[:gemset]).relative_path_from(Pathname('./'))}")
     end
 
     def build_gemset(options)
       Bundix.new(options).convert
     end
 
+    def object2nix(obj, level = 0)
+      Nixer.new(obj, level).serialize
+    end
+
     def save_gemset(gemset)
       tempfile = Tempfile.new('gemset.nix', encoding: 'UTF-8')
       begin
-        tempfile.write(Bundix.object2nix(gemset, 2))
+        tempfile.write(object2nix(gemset))
         tempfile.flush
         FileUtils.cp(tempfile.path, options[:gemset])
       ensure

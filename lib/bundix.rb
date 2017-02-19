@@ -87,10 +87,6 @@ class Bundix
     Bundler::LockfileParser.new(File.read(options[:lockfile]))
   end
 
-  def self.object2nix(obj, level = 0)
-    Nixer.new(obj, level).serialize
-  end
-
   def self.sh(*args, &block)
     out, status = Open3.capture2e(*args)
     unless block_given? ? block.call(status, out) : status.success?
