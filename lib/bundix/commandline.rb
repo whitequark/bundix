@@ -67,6 +67,10 @@ class Bundix
           options[:lockfile] = File.expand_path(value)
         end
 
+        o.on "--project=#{options[:project]}", 'override project name' do |value|
+          options[:project] = project
+        end
+
         o.on '-d', '--dependencies', 'include gem dependencies' do
           options[:deps] = true
         end
