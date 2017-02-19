@@ -3,9 +3,11 @@ require 'json'
 require 'open-uri'
 require 'open3'
 require 'pp'
+require 'erb'
 
-require_relative 'bundix/version'
-require_relative 'bundix/source'
+require 'bundix/version'
+require 'bundix/source'
+require 'bundix/nixer'
 
 class Bundix
   NIX_INSTANTIATE = 'nix-instantiate'
@@ -26,11 +28,7 @@ class Bundix
   attr_reader :options
 
   def initialize(options)
-    @options = {
-      quiet: false,
-      tempfile: nil,
-      deps: false
-    }.merge(options)
+    @options = options
   end
 
   def convert
@@ -89,33 +87,8 @@ class Bundix
     Bundler::LockfileParser.new(File.read(options[:lockfile]))
   end
 
-  def self.object2nix(obj, level = 2, out = '')
-    case obj
-    when Hash
-      out << "{\n"
-      obj.sort_by{|k, v| k.to_s.downcase }.each do |(k, v)|
-        out << ' ' * level
-        if k.to_s =~ /^[a-zA-Z_-]+[a-zA-Z0-9_-]*$/
-          out << k.to_s
-        else
-          object2nix(k, level + 2, out)
-        end
-        out << ' = '
-        object2nix(v, level + 2, out)
-        out << (v.is_a?(Hash) ? "\n" : ";\n")
-      end
-      out << (' ' * (level - 2)) << (level == 2 ? '}' : '};')
-    when Array
-      out << '[' << obj.sort.map{|o| o.to_str.dump }.join(' ') << ']'
-    when String
-      out << obj.dump
-    when Symbol
-      out << obj.to_s.dump
-    when true, false
-      out << obj.to_s
-    else
-      fail obj.inspect
-    end
+  def self.object2nix(obj, level = 0)
+    Nixer.new(obj, level).serialize
   end
 
   def self.sh(*args, &block)
