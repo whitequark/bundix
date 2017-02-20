@@ -54,8 +54,7 @@ class Bundix
 
     def convert_path
       { type: 'path',
-        glob: spec.source.glob,
-        expanded_path: spec.source.expanded_path }
+        path: "./" + spec.source.path }
     end
 
     def convert_rubygems

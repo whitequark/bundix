@@ -60,11 +60,17 @@ class Bundix
 
   class Prefetcher
     def self.db_path
-      ruby_path = Pathname.new(Bundix.sh("which", "ruby").chomp)
+      if ENV.has_key?("NIX_DB_DIR")
+        return Pathname.new(ENV["NIX_DB_DIR"])
+      end
+      if ENV.has_key?("NIX_STATE_DIR")
+        return Pathname.new(ENV["NIX_STATE_DIR"]) + "db"
+      end
+      store_path = Pathname.new(Bundix.sh(*%w(nix-instantiate --eval -E builtins.storeDir)).chomp.gsub(/"/,''))
       prefix = nil
-      ruby_path.ascend do |path|
+      store_path.ascend do |path|
         if path == Pathname.new("/")
-          fail "Couldn't identify the store path from '#{ruby_path}'"
+          fail "Couldn't identify the store path from '#{store_path}'"
         end
         if path.basename == Pathname.new("store")
           prefix = path.dirname
@@ -76,11 +82,14 @@ class Bundix
     end
 
     def self.pick
-      if db_path.writable?
-        return BuildFetch.new
-      else
-        return Prefetcher.new
-      end
+      @pick ||=
+        begin
+          if db_path.writable?
+            BuildFetch.new
+          else
+            Prefetcher.new
+          end
+        end
     end
   end
 end
