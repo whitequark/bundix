@@ -1,3 +1,6 @@
+require 'bundix'
+require 'pathname'
+
 class Bundix
   class Prefetcher
     def nix_prefetch_url(*args)
@@ -56,8 +59,24 @@ class Bundix
   end
 
   class Prefetcher
+    def self.db_path
+      ruby_path = Pathname.new(Bundix.sh("which", "ruby").chomp)
+      prefix = nil
+      ruby_path.ascend do |path|
+        if path == Pathname.new("/")
+          fail "Couldn't identify the store path from '#{ruby_path}'"
+        end
+        if path.basename == Pathname.new("store")
+          prefix = path.dirname
+          break
+        end
+      end
+
+      prefix + "var/nix/db"
+    end
+
     def self.pick
-      if File.writable?("/nix/var/nix/db")
+      if db_path.writable?
         return BuildFetch.new
       else
         return Prefetcher.new

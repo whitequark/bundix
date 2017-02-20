@@ -1,3 +1,5 @@
+require 'forwardable'
+
 class Bundix
   class Source < Struct.new(:spec, :prefetcher)
     def convert
@@ -20,7 +22,7 @@ class Bundix
 
     extend Forwardable
 
-    def_delegator :@prefetcher, :nix_prefetch_url, :nix_prefetch_git, :fetch_local_hash, :fetch_remotes_hash, :fetch_remote_hash
+    def_delegators :@prefetcher, :nix_prefetch_url, :nix_prefetch_git, :fetch_local_hash, :fetch_remotes_hash, :fetch_remote_hash
 
 ##<Bundler::LazySpecification:0x00000002f8b888
 # @__identifier=-3223135743059213996,
