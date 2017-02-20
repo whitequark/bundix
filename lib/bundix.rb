@@ -7,6 +7,7 @@ require 'erb'
 
 require 'bundix/version'
 require 'bundix/source'
+require 'bundix/prefetcher'
 require 'bundix/nixer'
 
 class Bundix
@@ -47,7 +48,7 @@ class Bundix
   end
 
   def convert_spec(spec, cache)
-    {spec.name => {version: spec.version.to_s, source: Source.new(spec).convert}}
+    {spec.name => {version: spec.version.to_s, source: Source.new(spec, Prefetcher.pick).convert}}
   rescue => ex
     warn "Skipping #{spec.name}: #{ex}"
     puts ex.backtrace

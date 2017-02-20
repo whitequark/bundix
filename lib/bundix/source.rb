@@ -1,5 +1,5 @@
 class Bundix
-  class Source < Struct.new(:spec)
+  class Source < Struct.new(:spec, :prefetcher)
     def convert
       case spec.source
       when Bundler::Source::Rubygems
@@ -18,51 +18,9 @@ class Bundix
       Bundix.sh(*args, &block)
     end
 
-    def nix_prefetch_url(url)
-      sh(NIX_BUILD, '--argstr', 'url', url, FETCHURL_FORCE, &FETCHURL_FORCE_CHECK)
-        .force_encoding('UTF-8')
-    rescue
-      nil
-    end
+    extend Forwardable
 
-    def nix_prefetch_git(uri, revision)
-      home = ENV['HOME']
-      ENV['HOME'] = '/homeless-shelter'
-      sh(NIX_PREFETCH_GIT, '--url', uri, '--rev', revision, '--hash', 'sha256', '--leave-dotGit')
-    ensure
-      ENV['HOME'] = home
-    end
-
-    def fetch_local_hash(spec)
-      spec.source.caches.each do |cache|
-        path = File.join(cache, "#{spec.name}-#{spec.version}.gem")
-        next unless File.file?(path)
-        hash = nix_prefetch_url("file://#{path}")[SHA256_32]
-        return hash if hash
-      end
-
-      nil
-    end
-
-    def fetch_remotes_hash(spec, remotes)
-      remotes.each do |remote|
-        hash = fetch_remote_hash(spec, remote)
-        return remote, hash if hash
-      end
-
-      nil
-    end
-
-    def fetch_remote_hash(spec, remote)
-      uri = "#{remote}/gems/#{spec.name}-#{spec.version}.gem"
-      result = nix_prefetch_url(uri)
-      return unless result
-      result.force_encoding('UTF-8')[SHA256_32]
-    rescue => e
-      puts "ignoring error during fetching: #{e}"
-      puts e.backtrace
-      nil
-    end
+    def_delegator :@prefetcher, :nix_prefetch_url, :nix_prefetch_git, :fetch_local_hash, :fetch_remotes_hash, :fetch_remote_hash
 
 ##<Bundler::LazySpecification:0x00000002f8b888
 # @__identifier=-3223135743059213996,
