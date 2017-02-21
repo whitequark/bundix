@@ -5,10 +5,10 @@ require 'open3'
 require 'pp'
 require 'erb'
 
-require 'bundix/version'
-require 'bundix/source'
-require 'bundix/prefetcher'
-require 'bundix/nixer'
+require_relative 'bundix/version'
+require_relative 'bundix/source'
+require_relative 'bundix/prefetcher'
+require_relative 'bundix/nixer'
 
 class Bundix
   NIX_INSTANTIATE = 'nix-instantiate'
@@ -57,6 +57,8 @@ class Bundix
     lock.specs.each do |spec|
       @dep_cache[spec.name] ||= Dependency.new(spec.name, nil, {})
     end
+
+    pp @dep_cache
 
     begin
       changed = false

@@ -2,8 +2,8 @@ require 'optparse'
 require 'tmpdir'
 require 'tempfile'
 require 'pathname'
-require 'bundix'
-require 'bundix/shell_nix_context'
+require_relative '../bundix'
+require_relative 'shell_nix_context'
 
 class Bundix
   class CommandLine
@@ -33,7 +33,7 @@ class Bundix
 
       gemset = build_gemset(options)
 
-      save_gemset(gemset)
+      save_gemset(gemset, options)
     end
 
     def parse_options(options)
@@ -126,7 +126,7 @@ class Bundix
       Nixer.new(obj, level).serialize
     end
 
-    def save_gemset(gemset)
+    def save_gemset(gemset, options)
       tempfile = Tempfile.new('gemset.nix', encoding: 'UTF-8')
       begin
         tempfile.write(object2nix(gemset))

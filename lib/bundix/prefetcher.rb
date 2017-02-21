@@ -1,4 +1,4 @@
-require 'bundix'
+require_relative '../bundix'
 require 'pathname'
 
 class Bundix

@@ -1,6 +1,6 @@
 require 'minitest/autorun'
 
-require 'bundix/prefetcher'
+require_relative '../lib/bundix/prefetcher'
 
 class TestPrefetcher < Minitest::Test
 
