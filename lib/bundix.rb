@@ -94,8 +94,34 @@ class Bundix
     {groups: @dep_cache.fetch(spec.name).groups}
   end
 
+  PLATFORM_MAPPING = {}
+
+  {
+    "ruby" => [{engine: "ruby"}, {engine:"rbx"}, {engine:"maglev"}],
+    "mri" => [{engine: "ruby"}, {engine: "maglev"}],
+    "rbx" => [{engine: "rbx"}],
+    "jruby" => [{engine: "jruby"}],
+    "mswin" => [{engine: "mswin"}],
+    "mswin64" => [{engine: "mswin64"}],
+    "mingw" => [{engine: "mingw"}],
+    "x64_mingw" => [{engine: "mingw"}],
+  }.each do |name, list|
+    PLATFORM_MAPPING[name] = list
+    %w(1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5).each do |version|
+      PLATFORM_MAPPING["#{name}_#{version.sub(/[.]/,'')}"] = list.map do |platform|
+        platform.merge(:version => version)
+      end
+    end
+  end
+
+
   def platforms(spec)
-    {platforms: @dep_cache.fetch(spec.name).platforms}
+    # c.f. Bundler::CurrentRuby
+    platforms = @dep_cache.fetch(spec.name).platforms.map do |platform_name|
+      PLATFORM_MAPPING[platform_name.to_s]
+    end.flatten
+
+    {platforms: platforms}
   end
 
 

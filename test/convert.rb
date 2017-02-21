@@ -53,9 +53,17 @@ class TestConvert < Minitest::Test
     #assert_equal(gemset.dig("yard"), {})
 
     assert_equal("gem", gemset.dig("rubysl-socket", :source, :type))
-    assert_equal([:rbx], gemset.dig("rubysl-socket", :platforms))
+    assert_equal([{engine: "rbx"}], gemset.dig("rubysl-socket", :platforms))
 
     # "main gem" - referred to by 'gemspec'
     assert_equal("path", gemset.dig("shex", :source, :type))
+  end
+end
+
+class TestPlatformMapping < Minitest::Test
+  def test_mapping
+    assert_includes(Bundix::PLATFORM_MAPPING["ruby_22"], {engine: "ruby", version: "2.2"})
+    assert_includes(Bundix::PLATFORM_MAPPING["ruby_22"], {engine: "rbx", version: "2.2"})
+    assert_includes(Bundix::PLATFORM_MAPPING["ruby_22"], {engine: "maglev", version: "2.2"})
   end
 end
