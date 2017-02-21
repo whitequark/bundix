@@ -2,11 +2,7 @@ class Bundix
   class Nixer
     attr_reader :level, :obj
 
-    HASH_T = ERB.new(<<eot.chomp)
-{
-<% obj.sort_by{|k,v| k.to_s.downcase}.each do |(k,v)| %><%= indent %><%= serialize_key(k) %> = <%= sub(v,2)%>;
-<%end%><%= outdent%>}
-eot
+    HASH_T = ERB.new(File.read(File.expand_path("../../template/nixer-hash.tmpl", __dir__)).chomp)
 
     def initialize(obj, level = 0)
       @obj = obj
