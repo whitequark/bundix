@@ -47,6 +47,13 @@ class Bundix
       puts e.backtrace
       nil
     end
+
+    protected
+
+    def sh(*args, &block)
+      Bundix.sh(*args, &block)
+    end
+
   end
 
   class BuildFetch < Prefetcher

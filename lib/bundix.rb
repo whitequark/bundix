@@ -26,16 +26,58 @@ class Bundix
   SHA256_32 = %r(^[a-z0-9]{52}$)
   SHA256_16 = %r(^[a-f0-9]{64}$)
 
-  attr_reader :cache, :lock, :deps, :lockfile, :gemset
-
   def initialize(options)
-    @deps, @lockfile, @gemset = options.values_at(:deps, :lockfile, :gemset)
+    @deps, @gemfile, @lockfile, @gemset = options.values_at(:deps, :gemfile, :lockfile, :gemset)
+    @dep_cache = {}
+    @prefetch_picker = Prefetcher
+  end
+
+  attr_reader :cache, :definition, :lock, :deps, :gemfile, :lockfile, :gemset
+  attr_accessor :prefetch_picker
+
+  class Dependency < Bundler::Dependency
+    def initialize(name, version, options={}, &blk)
+      super(name, version, options, &blk)
+      @bundix_version = version
+    end
+
+    attr_reader :version
   end
 
   def convert
     @cache = parse_gemset
     @lock = parse_lockfile
+    @definition = build_definition
 
+    definition.dependencies.each do |dep|
+      @dep_cache[dep.name] = dep
+    end
+
+
+    lock.specs.each do |spec|
+      @dep_cache[spec.name] ||= Dependency.new(spec.name, nil, {})
+    end
+
+    begin
+      changed = false
+      lock.specs.each do |spec|
+        as_dep = @dep_cache.fetch(spec.name)
+
+        spec.dependencies.each do |dep|
+          cached = @dep_cache.fetch(dep.name)
+
+          if !((as_dep.groups - cached.groups) - [:default]).empty? or !(as_dep.platforms - cached.platforms).empty?
+            changed = true
+            @dep_cache[cached.name] = (Dependency.new(cached.name, nil, {
+              "group" => as_dep.groups | cached.groups,
+              "platforms" => as_dep.platforms | cached.platforms
+            }))
+
+            cc = @dep_cache[cached.name]
+          end
+        end
+      end
+    end while changed
 
     # reverse so git comes last
     lock.specs.reverse_each.with_object({}) do |spec, gems|
@@ -48,21 +90,29 @@ class Bundix
     end
   end
 
-  def platforms(spec)
-
+  def groups(spec)
+    {groups: @dep_cache.fetch(spec.name).groups}
   end
 
+  def platforms(spec)
+    {platforms: @dep_cache.fetch(spec.name).platforms}
+  end
+
+
   def convert_spec(spec)
-    {spec.name => {
-      version: spec.version.to_s,
-      source: Source.new(spec, Prefetcher.pick).convert
-    }}
+    {
+      spec.name => {
+        version: spec.version.to_s,
+        source: Source.new(spec, prefetch_picker.pick).convert
+      }.merge(groups(spec)).merge(platforms(spec))
+    }
     #}.merge(platforms(spec)).merge(groups(spec)) }
   rescue => ex
     warn "Skipping #{spec.name}: #{ex}"
     puts ex.backtrace
     {spec.name => {}}
   end
+
 
   def find_cached_spec(spec)
     name, cached = cache.find{|k, v|
@@ -95,6 +145,10 @@ class Bundix
 
   def parse_lockfile
     Bundler::LockfileParser.new(File.read(lockfile))
+  end
+
+  def build_definition
+    Bundler::Definition.build(gemfile, lockfile, false)
   end
 
   def self.sh(*args, &block)

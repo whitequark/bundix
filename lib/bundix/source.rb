@@ -1,7 +1,12 @@
 require 'forwardable'
 
 class Bundix
-  class Source < Struct.new(:spec, :prefetcher)
+  class Source
+    def initialize(spec, prefetcher)
+      @spec, @prefetcher = spec, prefetcher
+    end
+    attr_reader :spec, :prefetcher
+
     def convert
       case spec.source
       when Bundler::Source::Rubygems
@@ -54,7 +59,7 @@ class Bundix
 
     def convert_path
       { type: 'path',
-        path: "./" + spec.source.path }
+        path: Pathname.new("./") + spec.source.path }
     end
 
     def convert_rubygems
