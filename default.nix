@@ -1,5 +1,12 @@
-with (import <nixpkgs> {});
-stdenv.mkDerivation {
+{
+  pkgs ? (import <nixpkgs> {}),
+  ruby ? pkgs.ruby_2_4_1,
+  bundler ? (pkgs.bundler.override { inherit ruby; }),
+  nix ? pkgs.nix,
+  nix-prefetch-git ? pkgs.nix-prefetch-git,
+}:
+pkgs.stdenv.mkDerivation rec {
+  version = "2.3.0";
   name = "bundix";
   src = ./.;
   phases = "installPhase";
@@ -8,10 +15,12 @@ stdenv.mkDerivation {
     makeWrapper $src/bin/bundix $out/bin/bundix \
       --prefix PATH : "${nix.out}/bin" \
       --prefix PATH : "${nix-prefetch-git.out}/bin" \
+      --prefix PATH : "${bundler.out}/bin" \
       --set GEM_PATH "${bundler}/${bundler.ruby.gemPath}"
   '';
 
-  nativeBuildInputs = [makeWrapper];
+  nativeBuildInputs = [ pkgs.makeWrapper ];
+  buildInputs = [ ruby bundler ];
 
   meta = {
     inherit version;
@@ -24,7 +33,7 @@ stdenv.mkDerivation {
     '';
     homepage = "https://github.com/manveru/bundix";
     license = "MIT";
-    maintainers = with lib.maintainers; [ manveru zimbatm ];
-    platforms = lib.platforms.all;
+    maintainers = with pkgs.lib.maintainers; [ manveru zimbatm ];
+    platforms = pkgs.lib.platforms.all;
   };
 }

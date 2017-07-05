@@ -1,2 +1,4 @@
 .bundle/
 *.gem
+tmp
+result

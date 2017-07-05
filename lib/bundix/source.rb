@@ -16,10 +16,37 @@ class Bundix
       Bundix.sh(*args, &block)
     end
 
+    def download(file, url)
+      warn "Downloading #{file} from #{url}"
+      uri = URI(url)
+      open_options = {}
+      if uri.user && uri.password
+        open_options[:http_basic_authentication] = [uri.user, uri.password]
+        uri.user = nil
+        uri.password = nil
+      end
+      open(uri, 'r', 0600, open_options) do |net|
+        File.open(file, 'wb+') { |local|
+          File.copy_stream(net, local)
+        }
+      end
+    end
+
     def nix_prefetch_url(url)
-      sh(NIX_BUILD, '--argstr', 'url', url, FETCHURL_FORCE, &FETCHURL_FORCE_CHECK)
-        .force_encoding('UTF-8')
-    rescue
+      dir = File.expand_path('~/.cache/bundix')
+      FileUtils.mkdir_p dir
+      file = File.join(dir, url.gsub(/[^\w-]+/, '_'))
+
+      unless File.size?(file)
+        download(file, url)
+      end
+
+      return unless File.size?(file)
+
+      sh('nix-prefetch-url', '--type', 'sha256', "file://#{file}")
+        .force_encoding('UTF-8').strip
+    rescue => ex
+      puts ex
       nil
     end
 
@@ -55,7 +82,7 @@ class Bundix
       uri = "#{remote}/gems/#{spec.name}-#{spec.version}.gem"
       result = nix_prefetch_url(uri)
       return unless result
-      result.force_encoding('UTF-8')[SHA256_32]
+      result[SHA256_32]
     rescue => e
       puts "ignoring error during fetching: #{e}"
       puts e.backtrace
@@ -66,8 +93,8 @@ class Bundix
       remotes = spec.source.remotes.map{|remote| remote.to_s.sub(/\/+$/, '') }
       hash = fetch_local_hash(spec)
       remote, hash = fetch_remotes_hash(spec, remotes) unless hash
-      hash = sh(NIX_HASH, '--type', 'sha256', '--to-base32', hash)[SHA256_32]
       fail "couldn't fetch hash for #{spec.name}-#{spec.version}" unless hash
+      hash = sh(NIX_HASH, '--type', 'sha256', '--to-base32', hash)[SHA256_32]
       puts "#{hash} => #{spec.name}-#{spec.version}.gem" if $VERBOSE
 
       { type: 'gem',

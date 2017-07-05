@@ -5,11 +5,7 @@ applications with the [Nix](http://nixos.org/nix/) package manager.
 
 ## Installation
 
-You can either get this via rubygems:
-
-    gem install bundix
-
-Or once it gets into nixpkgs:
+Installing from this repo:
 
     nix-env -iA bundix
 
@@ -26,8 +22,6 @@ regret it.
 
 Change to your project's directory and run this:
 
-    bundler lock
-    bundler package --path vendor/cache --no-install
     bundix
 
 This will generate a `gemset.nix` file that you then can use in your
@@ -40,16 +34,14 @@ To try your package in `nix-shell`, create a `default.nix` like this:
 ```nix
 with (import <nixpkgs> {});
 let
-  env = bundlerEnv {
+  gems = bundlerEnv {
     name = "your-package";
     inherit ruby;
-    gemfile = ./Gemfile;
-    lockfile = ./Gemfile.lock;
-    gemset = ./gemset.nix;
+    gemdir = ./.;
   };
 in stdenv.mkDerivation {
   name = "your-package";
-  buildInputs = [env ruby];
+  buildInputs = [gems ruby];
 }
 ```
 
@@ -62,18 +54,16 @@ To make a package for nixpkgs, you can try something like this:
 ```nix
 { stdenv, bundlerEnv, ruby }:
 let
-env = bundlerEnv {
-  name = "your-package";
-  inherit ruby;
-  gemfile  = ./Gemfile;
-  lockfile = ./Gemfile.lock;
-  gemset   = ./gemset.nix;
-};
+  gems = bundlerEnv {
+    name = "your-package";
+    inherit ruby;
+    gemdir  = ./.;
+  };
 in stdenv.mkDerivation {
-name = "your-package";
-src = ./.;
-buildInputs = [ ruby env ];
-installPhase = ''
+  name = "your-package";
+  src = ./.;
+  buildInputs = [gems ruby];
+  installPhase = ''
     mkdir -p $out
     cp -r $src $out
   '';

@@ -10,8 +10,9 @@ require_relative '../lib/bundix'
 options = {
   ruby: 'ruby',
   bundle_pack_path: 'vendor/bundle',
+  gemfile: 'Gemfile',
   lockfile: 'Gemfile.lock',
-  gemset: 'gemset.nix'
+  gemset: 'gemset.nix',
 }
 
 op = OptionParser.new do |o|
@@ -39,16 +40,30 @@ op = OptionParser.new do |o|
     options[:lockfile] = File.expand_path(value)
   end
 
-  o.on '-d', '--dependencies', 'include gem dependencies' do
-    options[:deps] = true
+  o.on '--gemfile=Gemfile', 'path to the Gemfile' do |value|
+    options[:gemfile] = File.expand_path(value)
+  end
+
+  o.on '-d', '--dependencies', 'include gem dependencies (deprecated)' do
+    warn '--dependencies/-d is deprecated because'
+    warn 'dependencies will always be fetched'
   end
 
   o.on '-q', '--quiet', 'only output errors' do
     options[:quiet] = true
   end
 
+  o.on '-l', '--lock', 'generate Gemfile.lock first' do
+    options[:lock] = true
+  end
+
   o.on '-v', '--version', 'show the version of bundix' do
     puts Bundix::VERSION
+    exit
+  end
+
+  o.on '--env', 'show the environment in bundix' do
+    system('env')
     exit
   end
 end
@@ -77,6 +92,15 @@ if options[:init]
     shell_nix.gsub!('LOCKFILE', "./#{Pathname(options[:lockfile]).relative_path_from(Pathname('./'))}")
     shell_nix.gsub!('GEMSET', "./#{Pathname(options[:gemset]).relative_path_from(Pathname('./'))}")
     File.write('shell.nix', shell_nix)
+  end
+end
+
+if options[:lock]
+  lock = !File.file?(options[:lockfile])
+  lock ||= File.mtime(options[:gemfile]) > File.mtime(options[:lockfile])
+  if lock
+    system('bundle', 'lock')
+    fail 'bundle lock failed' unless $?.success?
   end
 end
 

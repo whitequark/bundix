@@ -26,11 +26,7 @@ class Bundix
   attr_reader :options
 
   def initialize(options)
-    @options = {
-      quiet: false,
-      tempfile: nil,
-      deps: false
-    }.merge(options)
+    @options = { quiet: false, tempfile: nil }.merge(options)
   end
 
   def convert
@@ -42,9 +38,7 @@ class Bundix
       gem = find_cached_spec(spec, cache) || convert_spec(spec, cache)
       gems.merge!(gem)
 
-      if options[:deps] && spec.dependencies.any?
-        gems[spec.name]['dependencies'] = spec.dependencies.map(&:name) - ['bundler']
-      end
+      gems[spec.name]['dependencies'] = spec.dependencies.map(&:name) - ['bundler']
     end
   end
 
