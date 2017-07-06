@@ -8,7 +8,9 @@ Gem::Specification.new do |s|
   s.summary     = 'Creates Nix packages from Gemfiles.'
   s.description = 'Creates Nix packages from Gemfiles.'
   s.authors     = ["Michael 'manveru' Fellinger"]
-  s.files       = Dir['bin/*'] + Dir['lib/**/*.{rb,nix}']
+  s.files       = Dir['bin/*'] +
+                  Dir['lib/**/*.{rb,nix}'] +
+                  Dir['template/**/*.{rb,nix}']
   s.bindir      = 'bin'
   s.executables = ['bundix']
   s.add_runtime_dependency 'bundler', '~> 1.11'

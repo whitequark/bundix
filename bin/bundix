@@ -83,14 +83,15 @@ if options[:magic]
 end
 
 if options[:init]
+  shell_nix = File.read(File.expand_path('../template/shell.nix', __dir__))
+  shell_nix.gsub!('PROJECT', File.basename(Dir.pwd))
+  shell_nix.gsub!('RUBY', options[:ruby])
+  shell_nix.gsub!('LOCKFILE', "./#{Pathname(options[:lockfile]).relative_path_from(Pathname('./'))}")
+  shell_nix.gsub!('GEMSET', "./#{Pathname(options[:gemset]).relative_path_from(Pathname('./'))}")
   if File.file?('shell.nix')
-    warn "won't override existing shell.nix"
+    warn "won't override existing shell.nix but here is what it'd look like:"
+    puts shell_nix
   else
-    shell_nix = File.read(File.expand_path('../template/shell.nix', __dir__))
-    shell_nix.gsub!('PROJECT', File.basename(Dir.pwd))
-    shell_nix.gsub!('RUBY', options[:ruby])
-    shell_nix.gsub!('LOCKFILE', "./#{Pathname(options[:lockfile]).relative_path_from(Pathname('./'))}")
-    shell_nix.gsub!('GEMSET', "./#{Pathname(options[:gemset]).relative_path_from(Pathname('./'))}")
     File.write('shell.nix', shell_nix)
   end
 end
@@ -99,6 +100,10 @@ if options[:lock]
   lock = !File.file?(options[:lockfile])
   lock ||= File.mtime(options[:gemfile]) > File.mtime(options[:lockfile])
   if lock
+    ENV.delete('BUNDLE_PATH')
+    ENV.delete('BUNDLE_GEMFILE')
+    ENV.delete('BUNDLE_FROZEN')
+    ENV.delete('BUNDLE_BIN_PATH')
     system('bundle', 'lock')
     fail 'bundle lock failed' unless $?.success?
   end

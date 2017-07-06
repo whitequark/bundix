@@ -25,7 +25,8 @@ class Bundix
         uri.user = nil
         uri.password = nil
       end
-      open(uri, 'r', 0600, open_options) do |net|
+
+      open(uri.to_s, 'r', 0600, open_options) do |net|
         File.open(file, 'wb+') { |local|
           File.copy_stream(net, local)
         }
@@ -37,10 +38,7 @@ class Bundix
       FileUtils.mkdir_p dir
       file = File.join(dir, url.gsub(/[^\w-]+/, '_'))
 
-      unless File.size?(file)
-        download(file, url)
-      end
-
+      download(file, url) unless File.size?(file)
       return unless File.size?(file)
 
       sh('nix-prefetch-url', '--type', 'sha256', "file://#{file}")
@@ -62,7 +60,7 @@ class Bundix
       spec.source.caches.each do |cache|
         path = File.join(cache, "#{spec.name}-#{spec.version}.gem")
         next unless File.file?(path)
-        hash = nix_prefetch_url("file://#{path}")[SHA256_32]
+        hash = nix_prefetch_url(path)[SHA256_32]
         return hash if hash
       end
 

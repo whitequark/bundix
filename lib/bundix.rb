@@ -38,7 +38,9 @@ class Bundix
       gem = find_cached_spec(spec, cache) || convert_spec(spec, cache)
       gems.merge!(gem)
 
-      gems[spec.name]['dependencies'] = spec.dependencies.map(&:name) - ['bundler']
+      if spec.dependencies.any?
+        gems[spec.name]['dependencies'] = spec.dependencies.map(&:name) - ['bundler']
+      end
     end
   end
 
