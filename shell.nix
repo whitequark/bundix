@@ -12,8 +12,8 @@ stdenv.mkDerivation {
   name = "bundix-shell";
   buildInputs = [
     bundler
-    (lowPrio gems)
+    # (lowPrio gems)
     ruby
-    postgresql96
+    # postgresql96
   ];
 }

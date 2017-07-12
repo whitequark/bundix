@@ -6,6 +6,8 @@ class Bundix
         convert_rubygems
       when Bundler::Source::Git
         convert_git
+      when Bundler::Source::Path
+        :path
       else
         pp spec
         fail 'unkown bundler source'

@@ -6,7 +6,7 @@
   nix-prefetch-git ? pkgs.nix-prefetch-git,
 }:
 pkgs.stdenv.mkDerivation rec {
-  version = "2.3.1";
+  version = "2.4.0";
   name = "bundix";
   src = ./.;
   phases = "installPhase";

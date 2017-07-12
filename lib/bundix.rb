@@ -35,6 +35,7 @@ class Bundix
 
     # reverse so git comes last
     lock.specs.reverse_each.with_object({}) do |spec, gems|
+      next if spec.source.is_a?(Bundler::Source::Path)
       gem = find_cached_spec(spec, cache) || convert_spec(spec, cache)
       gems.merge!(gem)
 
