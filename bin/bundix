@@ -96,12 +96,13 @@ if options[:init]
   end
 end
 
+ENV['BUNDLE_GEMFILE'] = options[:gemfile]
+
 if options[:lock]
   lock = !File.file?(options[:lockfile])
   lock ||= File.mtime(options[:gemfile]) > File.mtime(options[:lockfile])
   if lock
     ENV.delete('BUNDLE_PATH')
-    ENV.delete('BUNDLE_GEMFILE')
     ENV.delete('BUNDLE_FROZEN')
     ENV.delete('BUNDLE_BIN_PATH')
     system('bundle', 'lock')
