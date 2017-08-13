@@ -71,6 +71,8 @@ end
 op.parse!
 $VERBOSE = !options[:quiet]
 
+ENV['BUNDLE_GEMFILE'] = options[:gemfile]
+
 if options[:magic]
   fail unless system(
     Bundix::NIX_SHELL, '-p', options[:ruby],
@@ -95,8 +97,6 @@ if options[:init]
     File.write('shell.nix', shell_nix)
   end
 end
-
-ENV['BUNDLE_GEMFILE'] = options[:gemfile]
 
 if options[:lock]
   lock = !File.file?(options[:lockfile])
