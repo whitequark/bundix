@@ -22,7 +22,7 @@ regret it.
 
 Change to your project's directory and run this:
 
-    bundix
+    bundix -l
 
 This will generate a `gemset.nix` file that you then can use in your
 `bundlerEnv` expression like this:
