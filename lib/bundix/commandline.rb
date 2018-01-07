@@ -40,11 +40,11 @@ class Bundix
           options[:magic] = true
         end
 
-        o.on "--ruby=#{options.ruby}", 'ruby version to use for magic and init, defaults to latest' do |value|
+        o.on "--ruby=#{options[:ruby]}", 'ruby version to use for magic and init, defaults to latest' do |value|
           options[:ruby] = value
         end
 
-        o.on "--bundle-pack-path=#{options.bundle_pack_path}", "path to pack the magic" do |value|
+        o.on "--bundle-pack-path=#{options[:bundle_pack_path]}", "path to pack the magic" do |value|
           options[:bundle_pack_path] = value
         end
 
@@ -52,11 +52,11 @@ class Bundix
           options[:init] = true
         end
 
-        o.on "--gemset=#{options.gemset}", 'path to the gemset.nix' do |value|
+        o.on "--gemset=#{options[:gemset]}", 'path to the gemset.nix' do |value|
           options[:gemset] = File.expand_path(value)
         end
 
-        o.on "--lockfile=#{options.lockfile}", 'path to the Gemfile.lock' do |value|
+        o.on "--lockfile=#{options[:lockfile]}", 'path to the Gemfile.lock' do |value|
           options[:lockfile] = File.expand_path(value)
         end
 
