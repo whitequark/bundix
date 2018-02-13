@@ -4,6 +4,7 @@ require 'tempfile'
 require 'pathname'
 
 require_relative '../bundix'
+require_relative 'shell_nix_context'
 
 class Bundix
   class CommandLine
@@ -14,6 +15,7 @@ class Bundix
       gemfile: 'Gemfile',
       lockfile: 'Gemfile.lock',
       gemset: 'gemset.nix',
+      project: File.basename(Dir.pwd)
     }
 
     def self.run
@@ -60,7 +62,7 @@ class Bundix
           options[:lockfile] = File.expand_path(value)
         end
 
-        o.on '--gemfile=Gemfile', 'path to the Gemfile' do |value|
+        o.on "--gemfile=#{options[:gemfile]}", 'path to the Gemfile' do |value|
           options[:gemfile] = File.expand_path(value)
         end
 
@@ -108,13 +110,13 @@ class Bundix
       end
     end
 
+    def shell_nix_context
+      ShellNixContext.from_hash(options)
+    end
+
     def shell_nix_string
-      shell_nix = File.read(File.expand_path('../../template/shell.nix', __dir__))
-      shell_nix.gsub!('PROJECT', File.basename(Dir.pwd))
-      shell_nix.gsub!('RUBY', options[:ruby])
-      shell_nix.gsub!('LOCKFILE', "./#{Pathname(options[:lockfile]).relative_path_from(Pathname('./'))}")
-      shell_nix.gsub!('GEMSET', "./#{Pathname(options[:gemset]).relative_path_from(Pathname('./'))}")
-      shell_nix
+      tmpl = ERB.new(File.read(File.expand_path('../../template/shell-nix.erb', __dir__)))
+      tmpl.result(shell_nix_context.bind)
     end
 
     def handle_init
@@ -147,7 +149,7 @@ class Bundix
     end
 
     def object2nix(obj)
-      Nixer.new(obj).serialize
+      Nixer.serialize(obj)
     end
 
     def save_gemset(gemset)
