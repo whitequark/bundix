@@ -6,7 +6,7 @@
   nix-prefetch-git ? pkgs.nix-prefetch-git,
 }:
 pkgs.stdenv.mkDerivation rec {
-  version = "2.3.1";
+  version = "2.4.0";
   name = "bundix";
   src = ./.;
   phases = "installPhase";
@@ -23,7 +23,7 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [ ruby bundler ];
 
   meta = {
-    version = "2.2.0";
+    inherit version;
     description = "Creates Nix packages from Gemfiles";
     longDescription = ''
       This is a tool that converts Gemfile.lock files to nix expressions.
