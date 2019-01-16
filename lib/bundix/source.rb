@@ -8,6 +8,11 @@ class Bundix
       warn "Downloading #{file} from #{url}"
       uri = URI(url)
       open_options = {}
+
+      unless uri.user
+        inject_credentials_from_bundle_config(uri)
+      end
+
       if uri.user
         open_options[:http_basic_authentication] = [uri.user, uri.password]
         uri.user = nil
@@ -19,6 +24,36 @@ class Bundix
           File.copy_stream(net, local)
         }
       end
+    end
+
+    def inject_credentials_from_bundle_config(uri)
+      @credentials ||= bundle_config_credentials
+      key = "BUNDLE_#{uri.host.upcase.gsub(/\./, '__')}" 
+      user, password = @credentials[key]
+      if user
+        uri.user = user
+        uri.password = password
+      end
+    end
+
+    def bundle_config_credentials
+      credentials = {}
+
+      files = [
+        File.expand_path("~/.bundle/config"),
+        "./.bundle/config",
+      ]
+
+      files.each do |file|
+        next unless File.exist?(file)
+        File.read(file)
+          .scan(/^(?<key>BUNDLE_.*?):\s*(?<username>.*)(?::(?<password>.*))?/)
+          .each do |key, username, password|
+            credentials[key] = [username, password]
+          end
+      end
+
+      credentials
     end
 
     def nix_prefetch_url(url)
