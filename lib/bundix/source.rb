@@ -10,7 +10,7 @@ class Bundix
       open_options = {}
 
       unless uri.user
-        inject_credentials_from_bundle_config(uri)
+        inject_credentials_from_bundler_settings(uri)
       end
 
       if uri.user
@@ -19,41 +19,38 @@ class Bundix
         uri.password = nil
       end
 
-      open(uri.to_s, 'r', 0600, open_options) do |net|
-        File.open(file, 'wb+') { |local|
-          File.copy_stream(net, local)
-        }
+      begin
+        open(uri.to_s, 'r', 0600, open_options) do |net|
+          File.open(file, 'wb+') { |local|
+            File.copy_stream(net, local)
+          }
+        end
+      rescue OpenURI::HTTPError => e
+        # e.message: "403 Forbidden" or "401 Unauthorized"
+        debrief_access_denied(uri.host) if e.message =~ /^40[13] /
+        raise
       end
     end
 
-    def inject_credentials_from_bundle_config(uri)
-      @credentials ||= bundle_config_credentials
-      key = "BUNDLE_#{uri.host.upcase.gsub(/\./, '__')}" 
-      user, password = @credentials[key]
-      if user
-        uri.user = user
-        uri.password = password
+    def inject_credentials_from_bundler_settings(uri)
+      @bundler_settings ||= Bundler::Settings.new(Bundler.root + '.bundle')
+
+      if val = @bundler_settings[uri.host]
+        uri.user, uri.password = val.split(':', 2)
       end
     end
 
-    def bundle_config_credentials
-      credentials = {}
+    def debrief_access_denied(host)
+      print_error(
+        "Authentication is required for #{host}.\n" +
+        "Please supply credentials for this source. You can do this by running:\n" +
+        " bundle config packages.shopify.io username:password"
+      )
+    end
 
-      files = [
-        File.expand_path("~/.bundle/config"),
-        "./.bundle/config",
-      ]
-
-      files.each do |file|
-        next unless File.exist?(file)
-        File.read(file)
-          .scan(/^(?<key>BUNDLE_.*?):\s*(?<username>.*)(?::(?<password>.*))?/)
-          .each do |key, username, password|
-            credentials[key] = [username, password]
-          end
-      end
-
-      credentials
+    def print_error(msg)
+      msg = "\x1b[31m#{msg}\x1b[0m" if $stdout.tty?
+      STDERR.puts(msg)
     end
 
     def nix_prefetch_url(url)
