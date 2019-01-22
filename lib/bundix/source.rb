@@ -61,8 +61,12 @@ class Bundix
       download(file, url) unless File.size?(file)
       return unless File.size?(file)
 
-      sh('nix-prefetch-url', '--type', 'sha256', "file://#{file}")
-        .force_encoding('UTF-8').strip
+      sh(
+        Bundix::NIX_PREFETCH_URL,
+        '--type', 'sha256',
+        '--name', File.basename(url), # --name mygem-1.2.3.gem
+        "file://#{file}",             # file:///.../https_rubygems_org_gems_mygem-1_2_3_gem
+      ).force_encoding('UTF-8').strip
     rescue => ex
       puts ex
       nil
