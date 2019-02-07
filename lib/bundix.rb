@@ -72,6 +72,7 @@ class Bundix
     "mswin" => [{engine: "mswin"}],
     "mswin64" => [{engine: "mswin64"}],
     "mingw" => [{engine: "mingw"}],
+    "truffleruby" => [{engine: "ruby"}],
     "x64_mingw" => [{engine: "mingw"}],
   }.each do |name, list|
     PLATFORM_MAPPING[name] = list
