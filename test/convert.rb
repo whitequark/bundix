@@ -20,22 +20,26 @@ class TestConvert < Minitest::Test
     end
   end
 
-  def build_gemset(options)
-    Bundler.instance_variable_set("@root", Pathname.new(File.expand_path("data", __dir__)))
+  def with_gemset(options)
+    Bundler.instance_variable_set(:@root, Pathname.new(File.expand_path("data", __dir__)))
+    bundle_gemfile = ENV["BUNDLE_GEMFILE"]
     ENV["BUNDLE_GEMFILE"] = options[:gemfile]
     options = {:deps => false, :lockfile => "", :gemset => ""}.merge(options)
     converter = Bundix.new(options)
     converter.fetcher = PrefetchStub.new
-    converter.convert()
+    yield(converter.convert)
+  ensure
+    ENV["BUNDLE_GEMFILE"] = bundle_gemfile
+    Bundler.reset!
   end
 
   def test_bundler_dep
-    gemset = build_gemset(
+    with_gemset(
       :gemfile => File.expand_path("data/bundler-audit/Gemfile", __dir__),
       :lockfile => File.expand_path("data/bundler-audit/Gemfile.lock", __dir__)
-    )
-
-    assert_equal("0.5.0", gemset.dig("bundler-audit", :version))
-    assert_equal("0.19.4", gemset.dig("thor", :version))
+    ) do |gemset|
+      assert_equal("0.5.0", gemset.dig("bundler-audit", :version))
+      assert_equal("0.19.4", gemset.dig("thor", :version))
+    end
   end
 end
