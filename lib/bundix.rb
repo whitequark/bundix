@@ -12,17 +12,10 @@ class Bundix
   NIX_INSTANTIATE = 'nix-instantiate'
   NIX_PREFETCH_URL = 'nix-prefetch-url'
   NIX_PREFETCH_GIT = 'nix-prefetch-git'
-  NIX_BUILD = 'nix-build'
   NIX_HASH = 'nix-hash'
   NIX_SHELL = 'nix-shell'
 
-  FETCHURL_FORCE = File.expand_path('../bundix/fetchurl-force.nix', __FILE__)
-  FETCHURL_FORCE_CHECK = lambda do |_, out|
-    out =~ /success! failing outer nix build.../
-  end
-
   SHA256_32 = %r(^[a-z0-9]{52}$)
-  SHA256_16 = %r(^[a-f0-9]{64}$)
 
   attr_reader :options
 
