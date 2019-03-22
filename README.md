@@ -20,55 +20,55 @@ regret it.
 
 1. Making a gemset.nix
 
-Change to your project's directory and run this:
+   Change to your project's directory and run this:
 
-    bundix -l
+       bundix -l
 
-This will generate a `gemset.nix` file that you then can use in your
-`bundlerEnv` expression like this:
+   This will generate a `gemset.nix` file that you then can use in your
+   `bundlerEnv` expression like this:
 
 2. Using `nix-shell`
 
-To try your package in `nix-shell`, create a `default.nix` like this:
+   To try your package in `nix-shell`, create a `default.nix` like this:
 
-```nix
-with (import <nixpkgs> {});
-let
-  gems = bundlerEnv {
-    name = "your-package";
-    inherit ruby;
-    gemdir = ./.;
-  };
-in stdenv.mkDerivation {
-  name = "your-package";
-  buildInputs = [gems ruby];
-}
-```
+   ```nix
+   with (import <nixpkgs> {});
+   let
+     gems = bundlerEnv {
+       name = "your-package";
+       inherit ruby;
+       gemdir = ./.;
+     };
+   in stdenv.mkDerivation {
+     name = "your-package";
+     buildInputs = [gems ruby];
+   }
+   ```
 
-and then simply run `nix-shell`.
+   and then simply run `nix-shell`.
 
 3. Proper packages
 
-To make a package for nixpkgs, you can try something like this:
+   To make a package for nixpkgs, you can try something like this:
 
-```nix
-{ stdenv, bundlerEnv, ruby }:
-let
-  gems = bundlerEnv {
-    name = "your-package";
-    inherit ruby;
-    gemdir  = ./.;
-  };
-in stdenv.mkDerivation {
-  name = "your-package";
-  src = ./.;
-  buildInputs = [gems ruby];
-  installPhase = ''
-    mkdir -p $out
-    cp -r $src $out
-  '';
-}
-```
+   ```nix
+   { stdenv, bundlerEnv, ruby }:
+   let
+     gems = bundlerEnv {
+       name = "your-package";
+       inherit ruby;
+       gemdir  = ./.;
+     };
+   in stdenv.mkDerivation {
+     name = "your-package";
+     src = ./.;
+     buildInputs = [gems ruby];
+     installPhase = ''
+       mkdir -p $out
+       cp -r $src $out
+     '';
+   }
+   ```
 
 ## How & Why
 
