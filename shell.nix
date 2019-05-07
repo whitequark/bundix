@@ -17,10 +17,16 @@ let
     source.sha256 = "01j8fc9bqjnrsxbppncai05h43315vmz9fwg28qdsgcjw9ck1d7n";
     gemPath = [];
   };
+
+ srcWithout = rootPath: ignoredPaths:
+   let
+     ignoreStrings = map (path: toString path ) ignoredPaths;
+   in
+     filterSource (path: type: (all (i: i != path) ignoreStrings)) rootPath;
 in
   stdenv.mkDerivation {
   name = "bundix";
-  src = ./.;
+  src = srcWithout ./. [ ./.git ./tmp ./result ];
   phases = "installPhase";
   installPhase = ''
     mkdir -p $out
