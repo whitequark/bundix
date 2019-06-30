@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../gemfile'
+require 'tmpdir'
 
 class Bundix
   module CLI
