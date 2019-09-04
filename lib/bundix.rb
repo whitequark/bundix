@@ -69,7 +69,7 @@ class Bundix
     "x64_mingw" => [{engine: "mingw"}],
   }.each do |name, list|
     PLATFORM_MAPPING[name] = list
-    %w(1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5).each do |version|
+    %w(1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6).each do |version|
       PLATFORM_MAPPING["#{name}_#{version.sub(/[.]/,'')}"] = list.map do |platform|
         platform.merge(:version => version)
       end
