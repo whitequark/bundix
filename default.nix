@@ -1,6 +1,6 @@
 {
   pkgs ? (import <nixpkgs> {}),
-  ruby ? pkgs.ruby_2_6,
+  ruby ? pkgs.ruby,
   bundler ? (pkgs.bundler.override { inherit ruby; }),
   nix ? pkgs.nix,
   nix-prefetch-git ? pkgs.nix-prefetch-git,
