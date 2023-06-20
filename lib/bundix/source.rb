@@ -4,7 +4,7 @@ class Bundix
       Bundix.sh(*args, &block)
     end
 
-    def download(file, url)
+    def download(file, url, limit = 10)
       warn "Downloading #{file} from #{url}"
       uri = URI(url)
 
@@ -28,6 +28,13 @@ class Bundix
               File.open(file, 'wb+') do |local|
                 resp.read_body { |chunk| local.write(chunk) }
               end
+            when Net::HTTPRedirection
+              location = resp['location']
+              raise "http error: Redirection loop detected" if location == url
+              raise "http error: Too many redirects" if limit < 1
+
+              warn "Redirected to #{location}"
+              download(file, location, limit - 1)
             when Net::HTTPUnauthorized, Net::HTTPForbidden
               debrief_access_denied(uri.host)
               raise "http error #{resp.code}: #{uri.host}"
